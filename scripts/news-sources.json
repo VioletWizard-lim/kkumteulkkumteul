@@ -4,12 +4,12 @@
     {
       "name": "Yle News",
       "url": "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_NEWS",
-      "fullText": true
+      "fullText": false
     },
     {
       "name": "Helsinki Times",
       "url": "https://www.helsinkitimes.fi/finland/finland-news/domestic.feed?type=rss",
-      "fullText": true
+      "fullText": false
     },
     {
       "name": "Google News",
