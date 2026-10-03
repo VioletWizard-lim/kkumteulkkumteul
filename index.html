@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>꿈틀꿈틀 핀란드 준비 앱</title>
+  <meta name="description" content="매일 영어 단어, 여행 영어 회화, 핀란드 교육 이야기로 핀란드를 준비해요.">
+  <meta name="theme-color" content="#2f6fdf">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="꿈틀핀란드">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <button class="icon-btn" id="backBtn" aria-label="뒤로" hidden>‹</button>
+      <h1 id="pageTitle">꿈틀꿈틀 핀란드 준비 앱</h1>
+      <button class="icon-btn" id="settingsBtn" aria-label="설정">⚙︎</button>
+    </header>
+
+    <main id="view" tabindex="-1"></main>
+
+    <nav class="tabbar" aria-label="메뉴">
+      <a href="#/" data-tab="home"><span>🏠</span>홈</a>
+      <a href="#/words" data-tab="words"><span>📚</span>오늘 단어</a>
+      <a href="#/travel" data-tab="travel"><span>🧳</span>여행회화</a>
+      <a href="#/news" data-tab="news"><span>📰</span>교육뉴스</a>
+    </nav>
+  </div>
+
+  <div id="overlay" class="overlay" hidden></div>
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="js/data/words.js"></script>
+  <script src="js/data/travel.js"></script>
+  <script src="js/data/news.js"></script>
+  <script src="js/data/messages.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
