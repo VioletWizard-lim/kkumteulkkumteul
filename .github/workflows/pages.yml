@@ -3,6 +3,10 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # 뉴스 업데이트 커밋은 push 이벤트를 만들지 않으므로, 뉴스 작업이 끝나면 다시 배포합니다.
+  workflow_run:
+    workflows: ["Update Finnish education news"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -22,6 +26,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

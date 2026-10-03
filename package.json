@@ -1,0 +1,17 @@
+{
+  "name": "kkumteulkkumteul",
+  "private": true,
+  "type": "module",
+  "description": "꿈틀꿈틀 핀란드 준비 앱",
+  "scripts": {
+    "start": "npx http-server . -p 8080 -c-1",
+    "news": "node scripts/fetch-news.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
+    "@mozilla/readability": "^0.6.0",
+    "jsdom": "^26.1.0",
+    "rss-parser": "^3.13.0"
+  }
+}

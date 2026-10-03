@@ -4,7 +4,7 @@
 
   // ---------- 저장소 ----------
   const STORE_KEY = "kkumteul.v1";
-  const defaults = { progress: {}, settings: { accent: "en-US", rate: 0.9, voiceURI: "" } };
+  const defaults = { progress: {}, settings: { accent: "en-US", rate: 0.9, voiceURI: "", departure: "2027-01-08" } };
   function load() {
     try {
       const raw = localStorage.getItem(STORE_KEY);
@@ -90,11 +90,111 @@
     return "evening";
   }
 
-  // ---------- 오늘의 뉴스 ----------
-  function newsForDay(offset) {
+  // ---------- 출발 D-day ----------
+  function daysUntilDeparture() {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(state.settings.departure || "");
+    if (!m) return null;
+    return dayNumber(new Date(+m[1], +m[2] - 1, +m[3])) - dayNumber();
+  }
+  function departureLabel() {
+    const n = daysUntilDeparture();
+    if (n === null) return "";
+    if (n > 0) return "✈️ 핀란드 출발 D-" + n;
+    if (n === 0) return "✈️ 오늘 핀란드로 출발! D-DAY";
+    return "🇫🇮 핀란드 " + (1 - n) + "일째";
+  }
+
+  // ---------- 교육 뉴스 ----------
+  // 실시간 뉴스(data/live-news.json, GitHub Actions 가 매일 갱신)와
+  // 앱에 들어 있는 핀란드 교육 이야기(js/data/news.js)를 같은 모양으로 맞춰 씁니다.
+  let liveNews = [];
+  function loadLiveNews() {
+    return fetch("data/live-news.json", { cache: "no-cache" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        liveNews = data && Array.isArray(data.items) ? data.items.map(normLive) : [];
+      })
+      .catch(() => { liveNews = []; });
+  }
+  function shortDate(iso) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || "");
+    return m ? m[1] + "." + (+m[2]) + "." + (+m[3]) : "";
+  }
+  function normLive(i) {
+    const hasKo = Array.isArray(i.summaryKo) && i.summaryKo.length > 0;
+    const published = i.published ? dateKey(new Date(i.published)) : i.addedDate;
+    return {
+      id: i.id,
+      live: true,
+      addedDate: i.addedDate,
+      dateLabel: shortDate(published),
+      tag: i.tag || "교육 뉴스",
+      title: i.title,
+      titleKo: i.titleKo || "",
+      summary: hasKo ? i.summaryKo : i.summaryEn || [],
+      summaryLang: hasKo ? "ko" : "en",
+      body: i.body || [],
+      words: i.words || [],
+      source: { name: i.source, url: i.url },
+    };
+  }
+  function normStory(a) {
+    return {
+      id: a.id,
+      live: false,
+      dateLabel: "",
+      tag: a.tag,
+      title: a.title,
+      titleKo: a.titleKo,
+      summary: a.summary,
+      summaryLang: "ko",
+      body: a.body,
+      words: a.words,
+      source: a.source,
+    };
+  }
+  function storyForDay(offset) {
     const list = window.NEWS_ARTICLES;
     const idx = (((dayNumber() - offset) % list.length) + list.length) % list.length;
-    return list[idx];
+    return normStory(list[idx]);
+  }
+  // 오늘 보여 줄 기사: 오늘 들어온 실시간 뉴스 → 없으면 지난 실시간 뉴스를 날마다 돌아가며 → 그것도 없으면 교육 이야기
+  function todaysNews() {
+    if (liveNews.length) {
+      const fresh = liveNews.find((x) => x.addedDate === dateKey());
+      if (fresh) return { article: fresh, label: "오늘의 뉴스" };
+      const past = liveNews[dayNumber() % liveNews.length];
+      return { article: past, label: "지난 뉴스 다시 보기" };
+    }
+    return { article: storyForDay(0), label: "오늘의 핀란드 교육 이야기" };
+  }
+  function findArticle(id) {
+    const live = liveNews.find((x) => x.id === id);
+    if (live) return live;
+    const story = window.NEWS_ARTICLES.find((x) => x.id === id);
+    return story ? normStory(story) : null;
+  }
+  function newsCard(a, label) {
+    return (
+      '<a class="card card-link news-today" href="#/news/' + esc(a.id) + '">' +
+        '<span class="badge">' + esc(label) + "</span> " +
+        '<span class="badge">' + esc(a.tag) + "</span>" +
+        '<div class="headline">' + esc(a.title) + "</div>" +
+        (a.titleKo ? '<div class="muted">' + esc(a.titleKo) + "</div>" : "") +
+        '<div class="small muted" style="margin-top:8px">' +
+          (a.live ? esc(a.source.name) + (a.dateLabel ? " · " + a.dateLabel : "") + " · " : "") +
+          "누르면 요약 또는 전문을 볼 수 있어요 →</div>" +
+      "</a>"
+    );
+  }
+  function newsRow(a) {
+    return (
+      '<a class="card card-link" href="#/news/' + esc(a.id) + '">' +
+        '<div class="small muted">' + (a.live ? esc(a.source.name) + (a.dateLabel ? " · " + a.dateLabel : "") + " · " : "") + esc(a.tag) + "</div>" +
+        '<div class="headline-sm">' + esc(a.title) + "</div>" +
+        (a.titleKo ? '<div class="small muted">' + esc(a.titleKo) + "</div>" : "") +
+      "</a>"
+    );
   }
 
   // ---------- 음성 (발음 듣기 / 읽어 주기) ----------
@@ -355,7 +455,8 @@
     const pct = Math.round((tasks / 5) * 100);
     const d = new Date();
     const days = ["일", "월", "화", "수", "목", "금", "토"];
-    const article = newsForDay(0);
+    const news = todaysNews();
+    const dday = departureLabel();
     const suggest = suggestedSession();
 
     const sessionRows = SESSION_KEYS.map((s) => {
@@ -376,6 +477,7 @@
     view.appendChild(h(
       '<section class="hero">' +
         '<div class="date">' + (d.getMonth() + 1) + "월 " + d.getDate() + "일 " + days[d.getDay()] + "요일</div>" +
+        (dday ? '<div class="dday">' + esc(dday) + "</div>" : "") +
         "<h2>" + (pct === 100 ? "오늘 목표 완료! 최고예요 🎉" : "오늘도 꿈틀꿈틀, 핀란드에 한 걸음!") + "</h2>" +
         '<div class="stats">' +
           '<div class="stat"><b>' + streak() + "일</b>연속 학습</div>" +
@@ -393,12 +495,8 @@
         '<div class="small muted">공항 · 호텔 · 식당 · 학교 방문 등 ' + window.TRAVEL_TOPICS.length + "가지 상황</div></div>" +
         '<span class="check ' + (p.travel.length ? "on" : "") + '">✓</span>' +
       "</a>" +
-      '<div class="section-title">📰 오늘의 핀란드 교육 뉴스</div>' +
-      '<a class="card card-link news-today" href="#/news/' + article.id + '">' +
-        '<span class="badge">' + esc(article.tag) + "</span>" +
-        '<div class="headline">' + esc(article.title) + "</div>" +
-        '<div class="muted">' + esc(article.titleKo) + "</div>" +
-      "</a>"
+      '<div class="section-title">📰 오늘의 핀란드 교육 뉴스 ' + (p.news ? '<span class="badge done">읽음</span>' : "") + "</div>" +
+      newsCard(news.article, news.label)
     ));
   }
 
@@ -614,28 +712,19 @@
   function renderNewsHome() {
     setHeader("핀란드 교육 뉴스", null);
     setTab("news");
-    const today = newsForDay(0);
+    const today = todaysNews();
     const p = todayProgress();
-    let past = "";
-    for (let k = 1; k < Math.min(7, window.NEWS_ARTICLES.length); k++) {
-      const a = newsForDay(k);
-      const d = new Date();
-      d.setDate(d.getDate() - k);
-      past +=
-        '<a class="card card-link" href="#/news/' + a.id + '">' +
-          '<div class="small muted">' + (d.getMonth() + 1) + "/" + d.getDate() + " · " + esc(a.tag) + "</div>" +
-          '<div class="headline-sm">' + esc(a.title) + '</div><div class="small muted">' + esc(a.titleKo) + "</div>" +
-        "</a>";
+    const pastLive = liveNews.filter((x) => x.id !== today.article.id).slice(0, 10);
+    const stories = [];
+    for (let k = 0; k < Math.min(6, window.NEWS_ARTICLES.length); k++) {
+      const st = storyForDay(k);
+      if (st.id !== today.article.id) stories.push(st);
     }
     view.innerHTML =
       '<div class="section-title" style="margin-top:6px">오늘의 기사 ' + (p.news ? '<span class="badge done">읽음</span>' : "") + "</div>" +
-      '<a class="card card-link news-today" href="#/news/' + today.id + '">' +
-        '<span class="badge">' + esc(today.tag) + "</span>" +
-        '<div class="headline">' + esc(today.title) + "</div>" +
-        '<div class="muted">' + esc(today.titleKo) + "</div>" +
-        '<div class="small muted" style="margin-top:8px">헤드라인을 누르면 요약 또는 전문을 볼 수 있어요 →</div>' +
-      "</a>" +
-      '<div class="section-title">지난 기사</div>' + past +
+      newsCard(today.article, today.label) +
+      (pastLive.length ? '<div class="section-title">📰 지난 뉴스</div>' + pastLive.map(newsRow).join("") : "") +
+      '<div class="section-title">📘 핀란드 교육 이야기</div>' + stories.map(newsRow).join("") +
       '<div class="section-title">더 많은 최신 소식</div>' +
       '<div class="card">' +
         window.NEWS_LINKS.map((l) => '<div style="padding:6px 0"><a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.name) + " ↗</a></div>").join("") +
@@ -643,35 +732,43 @@
   }
 
   function renderArticle(id) {
-    const a = window.NEWS_ARTICLES.find((x) => x.id === id);
+    const a = findArticle(id);
     if (!a) return renderNewsHome();
     setHeader("교육 뉴스", "#/news");
     setTab("news");
     let mode = "summary";
-    if (a.id === newsForDay(0).id) {
+    if (a.id === todaysNews().article.id) {
       todayProgress().news = true;
       save();
     }
 
     function draw() {
-      const body =
-        mode === "summary"
-          ? '<div class="card summary"><ul style="padding-left:20px;margin:0">' + a.summary.map((s) => "<li>" + esc(s) + "</li>").join("") + "</ul></div>"
-          : '<div class="toolbar"><button class="btn" data-act="read" style="padding:8px 14px">🔊 전문 읽어 주기</button></div>' +
-            '<div class="card body">' + a.body.map((pp, i) => '<p data-p="' + i + '">' + esc(pp) + "</p>").join("") + "</div>";
+      const original = a.live ? '<a class="btn secondary block" href="' + esc(a.source.url) + '" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;margin-bottom:12px">원문 기사 보기 ↗</a>' : "";
+      let body;
+      if (mode === "summary") {
+        body = '<div class="card summary"><ul style="padding-left:20px;margin:0">' + a.summary.map((s) => "<li>" + esc(s) + "</li>").join("") + "</ul></div>";
+      } else if (a.body.length) {
+        body = '<div class="toolbar"><button class="btn" data-act="read" style="padding:8px 14px">🔊 전문 읽어 주기</button></div>' +
+          '<div class="card body">' + a.body.map((pp, i) => '<p data-p="' + i + '">' + esc(pp) + "</p>").join("") + "</div>";
+      } else {
+        body = '<div class="card"><p style="margin:0">이 기사는 본문을 가져오지 못했어요. 아래 버튼으로 원문을 열어 보세요.</p></div>' + original;
+      }
       view.innerHTML =
         '<article class="article">' +
           '<span class="badge">' + esc(a.tag) + "</span>" +
           "<h2>" + esc(a.title) + "</h2>" +
-          '<div class="muted">' + esc(a.titleKo) + "</div>" +
+          (a.titleKo ? '<div class="muted">' + esc(a.titleKo) + "</div>" : "") +
+          (a.live ? '<div class="small muted" style="margin-top:4px">' + esc(a.source.name) + (a.dateLabel ? " · " + a.dateLabel : "") + "</div>" : "") +
           '<div class="seg" role="tablist">' +
-            '<button class="' + (mode === "summary" ? "on" : "") + '" data-mode="summary">📝 요약 (한국어)</button>' +
+            '<button class="' + (mode === "summary" ? "on" : "") + '" data-mode="summary">📝 요약 (' + (a.summaryLang === "ko" ? "한국어" : "영어") + ")</button>" +
             '<button class="' + (mode === "full" ? "on" : "") + '" data-mode="full">📄 전문 (영어)</button>' +
           "</div>" +
           body +
-          '<div class="section-title">🔑 기사 속 핵심 단어</div>' +
-          '<div class="kw">' + a.words.map((w, i) => '<button data-kw="' + i + '"><b>' + esc(w[0]) + " 🔊</b>" + esc(w[1]) + "</button>").join("") + "</div>" +
-          '<p class="small muted" style="margin-top:18px">참고: <a href="' + esc(a.source.url) + '" target="_blank" rel="noopener">' + esc(a.source.name) + " ↗</a></p>" +
+          (a.words.length
+            ? '<div class="section-title">🔑 기사 속 핵심 단어</div>' +
+              '<div class="kw">' + a.words.map((w, i) => '<button data-kw="' + i + '"><b>' + esc(w[0]) + " 🔊</b>" + esc(w[1]) + "</button>").join("") + "</div>"
+            : "") +
+          '<p class="small muted" style="margin-top:18px">' + (a.live ? "출처" : "참고") + ': <a href="' + esc(a.source.url) + '" target="_blank" rel="noopener">' + esc(a.source.name) + " ↗</a></p>" +
         "</article>";
 
       view.querySelectorAll("[data-mode]").forEach((btn) => {
@@ -716,6 +813,7 @@
     openModal(
       '<div class="modal left">' +
         '<h3>⚙︎ 설정</h3>' +
+        '<div class="field"><label>✈️ 핀란드 출발일</label><input type="date" id="setDeparture" value="' + esc(s.departure || "") + '"></div>' +
         '<div class="field"><label>발음 (억양)</label><select id="setAccent">' +
           '<option value="en-US"' + (s.accent === "en-US" ? " selected" : "") + ">🇺🇸 미국식</option>" +
           '<option value="en-GB"' + (s.accent === "en-GB" ? " selected" : "") + ">🇬🇧 영국식</option>" +
@@ -729,6 +827,7 @@
       "</div>",
       (root) => {
         root.querySelector("#setAccent").onchange = (e) => { s.accent = e.target.value; s.voiceURI = ""; save(); openSettings(); };
+        root.querySelector("#setDeparture").onchange = (e) => { s.departure = e.target.value; save(); route(); toast(departureLabel() || "출발일을 지웠어요."); };
         root.querySelector("#setVoice").onchange = (e) => { s.voiceURI = e.target.value; save(); };
         root.querySelector("#setRate").oninput = (e) => { s.rate = parseFloat(e.target.value); root.querySelector("#rateVal").textContent = s.rate.toFixed(1); save(); };
         root.querySelector("#testVoice").onclick = (e) => speakButton(e.currentTarget, "Hello! Welcome to Finland. Let's practice English together.");
@@ -760,6 +859,12 @@
   }
   window.addEventListener("hashchange", route);
   route();
+  // 실시간 뉴스를 불러오면 홈/뉴스 화면을 다시 그립니다.
+  loadLiveNews().then(() => {
+    if (!liveNews.length || !overlay.hidden) return;
+    const tab = location.hash.replace(/^#\/?/, "").split("/")[0] || "";
+    if (tab === "" || tab === "news") route();
+  });
 
   // ---------- 오프라인 지원 ----------
   if ("serviceWorker" in navigator && location.protocol === "https:") {

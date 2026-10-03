@@ -1,0 +1,61 @@
+{
+  "_comment": "핀란드 교육 뉴스를 가져올 RSS 주소와 교육 관련 키워드입니다. 위에 있는 소스를 먼저 사용합니다. fullText가 true면 기사 페이지에서 본문을 가져옵니다. fallback이 true인 소스는 최근 기사가 하나도 없을 때만 사용하며, maxAgeDays(기본 10일)까지 지난 기사를 찾습니다.",
+  "feeds": [
+    {
+      "name": "Yle News",
+      "url": "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_NEWS",
+      "fullText": true
+    },
+    {
+      "name": "Helsinki Times",
+      "url": "https://www.helsinkitimes.fi/?format=feed&type=rss",
+      "fullText": true
+    },
+    {
+      "name": "Google News",
+      "url": "https://news.google.com/rss/search?q=Finland+(education+OR+school+OR+teachers+OR+pupils+OR+students)+when:7d&hl=en-US&gl=US&ceid=US:en",
+      "fullText": false
+    },
+    {
+      "name": "Google News (지난 기사)",
+      "url": "https://news.google.com/rss/search?q=Finland+education+(school+OR+teachers+OR+pupils)+when:1y&hl=en-US&gl=US&ceid=US:en",
+      "fullText": false,
+      "fallback": true,
+      "maxAgeDays": 365
+    }
+  ],
+  "keywords": [
+    "education",
+    "educational",
+    "school",
+    "schools",
+    "teacher",
+    "teachers",
+    "teaching",
+    "pupil",
+    "pupils",
+    "student",
+    "students",
+    "classroom",
+    "curriculum",
+    "university",
+    "universities",
+    "kindergarten",
+    "daycare",
+    "day care",
+    "early childhood",
+    "preschool",
+    "matriculation",
+    "upper secondary",
+    "vocational",
+    "learning",
+    "literacy",
+    "PISA",
+    "homework",
+    "school meal",
+    "tuition",
+    "Ministry of Education",
+    "OPH"
+  ],
+  "keepItems": 30
+}
