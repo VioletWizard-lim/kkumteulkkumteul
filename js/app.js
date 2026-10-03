@@ -73,11 +73,22 @@
     return a;
   }
   const SESSION_KEYS = ["morning", "lunch", "evening"];
+  // 앱을 처음 연 날이 1일차입니다. 단어장(각 약 1,000개)을 다 쓸 때까지 같은 단어가 다시 나오지 않아요.
+  if (!state.settings.startDay) {
+    state.settings.startDay = dayNumber();
+    save();
+  }
+  function studyDay() {
+    return Math.max(0, dayNumber() - state.settings.startDay) + 1;
+  }
+  function wordCycleLength() {
+    return Math.min.apply(null, SESSION_KEYS.map((k) => Math.floor(window.WORD_BANKS[k].words.length / 10)));
+  }
   function todaysWords(session) {
     const bank = window.WORD_BANKS[session].words;
     const perDay = 10;
     const cycleLen = Math.floor(bank.length / perDay);
-    const day = dayNumber();
+    const day = studyDay() - 1;
     const cycle = Math.floor(day / cycleLen);
     const pos = day % cycleLen;
     const salt = SESSION_KEYS.indexOf(session) * 7919;
@@ -510,7 +521,11 @@
     setTab("words");
     const p = todayProgress();
     const suggest = suggestedSession();
-    let html = '<p class="muted small" style="margin:6px 2px 14px">아침·점심·저녁 10개씩, 하루 30개! 🔊 버튼으로 원어민 발음을 듣고, 🎤로 따라 말해 보세요.</p>';
+    const dayN = studyDay();
+    const cycleDay = ((dayN - 1) % wordCycleLength()) + 1;
+    let html = '<p class="muted small" style="margin:6px 2px 14px"><b>📅 단어 ' + dayN + "일차</b>" +
+      (dayN > cycleDay ? " (" + cycleDay + "/" + wordCycleLength() + "일 복습 주기)" : " / " + wordCycleLength() + "일 동안 매일 새 표현") +
+      "<br>아침·점심·저녁 10개씩, 하루 30개! 🔊 버튼으로 원어민 발음을 듣고, 🎤로 따라 말해 보세요.</p>";
     SESSION_KEYS.forEach((s) => {
       const b = window.WORD_BANKS[s];
       const words = todaysWords(s);
