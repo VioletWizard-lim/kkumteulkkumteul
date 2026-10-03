@@ -140,6 +140,44 @@ async function extractBody(url) {
   return unique.join(" ").length >= MIN_BODY_CHARS ? unique : [];
 }
 
+// Google News RSS 링크(news.google.com/rss/articles/…)를 실제 언론사 기사 주소로 바꿉니다.
+// 기사 페이지에 들어 있는 서명(data-n-a-sg)과 시각(data-n-a-ts)으로 Google 내부 API 를 호출합니다.
+// 실패하면 null 을 돌려주고, 그 기사는 본문 없이 요약만 저장됩니다.
+const GNEWS_BASE = process.env.GNEWS_BASE || "https://news.google.com";
+async function resolveGoogleNewsUrl(url) {
+  const m = url.match(/news\.google\.com\/(?:rss\/)?articles\/([^?/#]+)/);
+  if (!m) return null;
+  const id = m[1];
+  try {
+    const { text } = await fetchText(`${GNEWS_BASE}/articles/${id}`);
+    const sig = text.match(/data-n-a-sg="([^"]+)"/)?.[1];
+    const ts = text.match(/data-n-a-ts="([^"]+)"/)?.[1];
+    if (!sig || !ts) throw new Error("signature not found");
+    const inner = JSON.stringify([
+      "garturlreq",
+      [["X", "X", ["X", "X"], null, null, 1, 1, "US:en", null, 1, null, null, null, null, null, 0, 1], "X", "X", 1, [1, 1, 1], 1, 1, null, 0, 0, null, 0],
+      id,
+      Number(ts),
+      sig,
+    ]);
+    const res = await fetch(`${GNEWS_BASE}/_/DotsSplashUi/data/batchexecute`, {
+      method: "POST",
+      headers: { "User-Agent": USER_AGENT, "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body: new URLSearchParams({ "f.req": JSON.stringify([[["Fbv4je", inner, null, "generic"]]]) }),
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!res.ok) throw new Error(`batchexecute HTTP ${res.status}`);
+    const raw = await res.text();
+    const payload = JSON.parse(raw.slice(raw.indexOf("\n\n") + 2));
+    const decoded = JSON.parse(payload[0][2])[1];
+    if (typeof decoded !== "string" || !/^https?:\/\//.test(decoded)) throw new Error("no url in response");
+    return decoded;
+  } catch (e) {
+    console.warn(`[gnews] could not resolve ${id.slice(0, 20)}…: ${e.message}`);
+    return null;
+  }
+}
+
 function englishSummary(body, snippet) {
   // 소제목·캡션처럼 문장으로 끝나지 않는 문단은 요약에서 뺍니다.
   const sentencesOnly = body.filter((p) => /[.!?]["'”’)]?$/.test(p));
@@ -289,7 +327,17 @@ async function addTranslations(item) {
 
 async function buildItem(c, fromFallback) {
   let body = [];
-  if (c.feed.fullText) {
+  if (/news\.google\./.test(c.url)) {
+    const real = await resolveGoogleNewsUrl(c.url);
+    if (real) {
+      c.url = real;
+      try {
+        body = await extractBody(real);
+      } catch (e) {
+        console.warn(`[body] ${real}: ${e.message}`);
+      }
+    }
+  } else if (c.feed.fullText) {
     try {
       body = await extractBody(c.url);
     } catch (e) {
@@ -352,8 +400,28 @@ async function main() {
     }
   }
 
-  // 이미 저장된 기사 중 번역이 없는 것 채우기 (한 번에 최대 5개)
+  // 이미 저장된 기사 중 본문이나 번역이 없는 것 채우기 (한 번에 최대 5개)
   let backfilled = 0;
+  for (const item of existing) {
+    if (backfilled >= 5) break;
+    if (!item.body?.length && /news\.google\./.test(item.url)) {
+      const real = await resolveGoogleNewsUrl(item.url);
+      if (real) {
+        item.url = real;
+        try {
+          item.body = await extractBody(real);
+        } catch (e) {
+          console.warn(`[body] ${real}: ${e.message}`);
+        }
+        if (item.body.length) {
+          item.summaryEn = englishSummary(item.body, "");
+          if (item.summaryMachine) item.summaryKo = [];
+        }
+        backfilled++;
+        console.log(`[gnews] resolved: ${real} (본문 ${item.body.length}문단)`);
+      }
+    }
+  }
   for (const item of existing) {
     if (backfilled >= 5 || translatorDown) break;
     const needs = !item.titleKo || !item.summaryKo?.length || (item.body?.length && item.bodyKo?.length !== item.body.length);
