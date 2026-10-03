@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-03T13:50:44.100Z",
+  "updated": "2026-10-03T23:26:17.595Z",
   "items": [
+    {
+      "id": "live-a35d33ba72",
+      "addedDate": "2026-10-04",
+      "archived": false,
+      "published": "2026-10-03T14:36:07.000Z",
+      "source": "Quantum Zeitgeist",
+      "url": "https://quantumzeitgeist.com/quantum-physics-ftmc-researcher-shares/",
+      "title": "FTMC Researcher Shares Lessons On Teaching Quantum Physics",
+      "titleKo": "FTMC 연구원이 양자 물리학 교육에 대한 교훈을 공유합니다",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "FTMC 연구원이 양자 물리학 교육에 대한 교훈을 공유합니다"
+      ],
+      "summaryEn": [
+        "FTMC Researcher Shares Lessons On Teaching Quantum Physics"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-bff72018a5",
       "addedDate": "2026-10-03",
