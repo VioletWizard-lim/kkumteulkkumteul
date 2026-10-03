@@ -5,7 +5,8 @@
 // - 최근 기사가 없으면 fallback 소스(더 오래된 기사까지 검색)에서 아직 저장하지 않은 기사를 찾습니다.
 // - fullText 가 켜진 소스는 기사 페이지에서 본문을 추출합니다 (Mozilla Readability).
 // - ANTHROPIC_API_KEY 가 있으면 Claude 로 한국어 제목·요약·핵심 단어를 만듭니다.
-//   없으면 영어 요약(본문 앞부분)만 저장합니다.
+// - 제목·요약·본문은 무료 번역(Google 번역 공개 주소 → 실패 시 MyMemory)으로 한국어 번역을 붙입니다.
+//   API 키가 필요 없고, 번역에 실패하면 영어만 저장합니다. 이미 저장된 기사도 번역이 없으면 채웁니다.
 //
 // 환경 변수
 //   ANTHROPIC_API_KEY  (선택) 한국어 요약용
@@ -138,7 +139,9 @@ async function extractBody(url) {
 }
 
 function englishSummary(body, snippet) {
-  const text = body.length ? body.slice(0, 4).join(" ") : snippet;
+  // 소제목·캡션처럼 문장으로 끝나지 않는 문단은 요약에서 뺍니다.
+  const sentencesOnly = body.filter((p) => /[.!?]["'”’)]?$/.test(p));
+  const text = sentencesOnly.length ? sentencesOnly.slice(0, 4).join(" ") : snippet;
   const sentences = text.match(/[^.!?]+[.!?]+(\s|$)/g) || (text ? [text] : []);
   return sentences.slice(0, 3).map((s) => s.trim());
 }
@@ -198,6 +201,90 @@ async function enrichWithClaude(item) {
   return JSON.parse(textBlock.text);
 }
 
+// ---------- 무료 자동 번역 (영어 → 한국어) ----------
+const TRANSLATE_URL = process.env.TRANSLATE_URL || "https://translate.googleapis.com/translate_a/single";
+const MYMEMORY_URL = process.env.MYMEMORY_URL || "https://api.mymemory.translated.net/get";
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function googleTranslate(text) {
+  const params = new URLSearchParams({ client: "gtx", sl: "en", tl: "ko", dt: "t" });
+  const res = await fetch(`${TRANSLATE_URL}?${params}`, {
+    method: "POST",
+    headers: { "User-Agent": USER_AGENT, "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+    body: new URLSearchParams({ q: text }),
+    signal: AbortSignal.timeout(20000),
+  });
+  if (!res.ok) throw new Error(`google HTTP ${res.status}`);
+  const data = await res.json();
+  const out = (data[0] || []).map((seg) => seg[0] || "").join("").trim();
+  if (!out) throw new Error("google: empty result");
+  return out;
+}
+
+// MyMemory 는 한 번에 500자까지라 문장 단위로 나눠 번역합니다.
+async function myMemoryTranslate(text) {
+  const sentences = text.match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g) || [text];
+  const chunks = [];
+  let cur = "";
+  for (const sen of sentences) {
+    if ((cur + sen).length > 450 && cur) { chunks.push(cur); cur = ""; }
+    cur += sen;
+  }
+  if (cur) chunks.push(cur);
+  const out = [];
+  for (const chunk of chunks) {
+    const params = new URLSearchParams({ q: chunk.trim(), langpair: "en|ko" });
+    if (process.env.MYMEMORY_EMAIL) params.set("de", process.env.MYMEMORY_EMAIL);
+    const res = await fetch(`${MYMEMORY_URL}?${params}`, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(20000) });
+    if (!res.ok) throw new Error(`mymemory HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.responseStatus !== 200 && data.responseStatus !== "200") throw new Error(`mymemory: ${data.responseDetails || data.responseStatus}`);
+    out.push(String(data.responseData?.translatedText || "").trim());
+    await sleep(300);
+  }
+  return out.join(" ").trim();
+}
+
+let translatorDown = false;
+async function translateText(text) {
+  if (!text || !text.trim() || translatorDown) return "";
+  for (const fn of [googleTranslate, myMemoryTranslate]) {
+    try {
+      const out = await fn(text);
+      await sleep(200);
+      if (out) return out;
+    } catch (e) {
+      console.warn(`[translate] ${e.message}`);
+    }
+  }
+  translatorDown = true; // 두 서비스 모두 실패하면 이번 실행에서는 더 시도하지 않습니다.
+  return "";
+}
+
+async function translateAll(list) {
+  const out = [];
+  for (const t of list) out.push(await translateText(t));
+  return out;
+}
+
+// 번역이 비어 있는 항목만 채웁니다. 무엇인가 바뀌면 true.
+async function addTranslations(item) {
+  let changed = false;
+  if (!item.titleKo) {
+    item.titleKo = await translateText(item.title);
+    changed ||= !!item.titleKo;
+  }
+  if (!item.summaryKo?.length && item.summaryEn?.length) {
+    const ko = await translateAll(item.summaryEn);
+    if (ko.every(Boolean)) { item.summaryKo = ko; item.summaryMachine = true; changed = true; }
+  }
+  if (item.body?.length && !(item.bodyKo?.length === item.body.length)) {
+    const ko = await translateAll(item.body);
+    if (ko.every(Boolean)) { item.bodyKo = ko; changed = true; }
+  }
+  return changed;
+}
+
 async function buildItem(c, fromFallback) {
   let body = [];
   if (c.feed.fullText) {
@@ -237,6 +324,7 @@ async function buildItem(c, fromFallback) {
     if (e instanceof Anthropic.APIError) console.warn(`[claude] ${e.status ?? ""} ${e.message}`);
     else console.warn(`[claude] ${e.message}`);
   }
+  await addTranslations(item);
   return item;
 }
 
@@ -262,7 +350,19 @@ async function main() {
     }
   }
 
-  if (!added.length) {
+  // 이미 저장된 기사 중 번역이 없는 것 채우기 (한 번에 최대 5개)
+  let backfilled = 0;
+  for (const item of existing) {
+    if (backfilled >= 5 || translatorDown) break;
+    const needs = !item.titleKo || !item.summaryKo?.length || (item.body?.length && item.bodyKo?.length !== item.body.length);
+    if (!needs) continue;
+    if (await addTranslations(item)) {
+      backfilled++;
+      console.log(`[translate] filled translations for: ${item.title}`);
+    }
+  }
+
+  if (!added.length && !backfilled) {
     // 앱이 저장된 지난 기사를 날마다 돌아가며 보여 줍니다.
     console.log("[info] no new article today; the app will show a past article");
     return;

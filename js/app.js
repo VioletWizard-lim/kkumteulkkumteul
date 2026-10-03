@@ -133,7 +133,9 @@
       titleKo: i.titleKo || "",
       summary: hasKo ? i.summaryKo : i.summaryEn || [],
       summaryLang: hasKo ? "ko" : "en",
+      summaryMachine: !!i.summaryMachine,
       body: i.body || [],
+      bodyKo: Array.isArray(i.bodyKo) && i.bodyKo.length === (i.body || []).length ? i.bodyKo : [],
       words: i.words || [],
       source: { name: i.source, url: i.url },
     };
@@ -148,7 +150,9 @@
       titleKo: a.titleKo,
       summary: a.summary,
       summaryLang: "ko",
+      summaryMachine: false,
       body: a.body,
+      bodyKo: [],
       words: a.words,
       source: a.source,
     };
@@ -737,6 +741,7 @@
     setHeader("교육 뉴스", "#/news");
     setTab("news");
     let mode = "summary";
+    let showKo = false;
     if (a.id === todaysNews().article.id) {
       todayProgress().news = true;
       save();
@@ -746,10 +751,18 @@
       const original = a.live ? '<a class="btn secondary block" href="' + esc(a.source.url) + '" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;margin-bottom:12px">원문 기사 보기 ↗</a>' : "";
       let body;
       if (mode === "summary") {
-        body = '<div class="card summary"><ul style="padding-left:20px;margin:0">' + a.summary.map((s) => "<li>" + esc(s) + "</li>").join("") + "</ul></div>";
+        body = '<div class="card summary"><ul style="padding-left:20px;margin:0">' + a.summary.map((s) => "<li>" + esc(s) + "</li>").join("") + "</ul>" +
+          (a.summaryMachine ? '<p class="small muted" style="margin:10px 0 0">※ 기사 앞부분을 자동 번역한 요약이에요.</p>' : "") + "</div>";
       } else if (a.body.length) {
-        body = '<div class="toolbar"><button class="btn" data-act="read" style="padding:8px 14px">🔊 전문 읽어 주기</button></div>' +
-          '<div class="card body">' + a.body.map((pp, i) => '<p data-p="' + i + '">' + esc(pp) + "</p>").join("") + "</div>";
+        body = '<div class="toolbar"><button class="btn" data-act="read" style="padding:8px 14px">🔊 전문 읽어 주기</button>' +
+          (a.bodyKo.length ? '<button class="chip ' + (showKo ? "on" : "") + '" data-act="ko">한국어 번역 ' + (showKo ? "ON" : "OFF") + "</button>" : "") +
+          "</div>" +
+          '<div class="card body">' + a.body.map((pp, i) =>
+            '<p data-p="' + i + '">' + esc(pp) + "</p>" +
+            (showKo && a.bodyKo[i] ? '<p class="ko-trans">' + esc(a.bodyKo[i]) + "</p>" : "")
+          ).join("") +
+          (showKo ? '<p class="small muted" style="margin:0">※ 자동 번역이라 어색한 표현이 있을 수 있어요.</p>' : "") +
+          "</div>";
       } else {
         body = '<div class="card"><p style="margin:0">이 기사는 본문을 가져오지 못했어요. 아래 버튼으로 원문을 열어 보세요.</p></div>' + original;
       }
@@ -777,6 +790,8 @@
       view.querySelectorAll("[data-kw]").forEach((btn) => {
         btn.onclick = () => speakButton(btn, a.words[+btn.dataset.kw][0]);
       });
+      const koBtn = view.querySelector('[data-act="ko"]');
+      if (koBtn) koBtn.onclick = () => { stopSpeaking(); showKo = !showKo; draw(); };
       const read = view.querySelector('[data-act="read"]');
       if (read) read.onclick = () => readAll(read);
     }
