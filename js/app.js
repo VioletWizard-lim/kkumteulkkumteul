@@ -779,7 +779,8 @@
           (showKo ? '<p class="small muted" style="margin:0">※ 자동 번역이라 어색한 표현이 있을 수 있어요.</p>' : "") +
           "</div>";
       } else {
-        body = '<div class="card"><p style="margin:0">이 기사는 본문을 가져오지 못했어요. 아래 버튼으로 원문을 열어 보세요.</p></div>' + original;
+        body = '<div class="card"><p style="margin:0">저작권 보호를 위해 앱에는 기사 본문을 저장하지 않아요. 아래 버튼을 누르면 언론사 사이트에서 전문을 읽을 수 있어요.</p>' +
+          '<p class="small muted" style="margin:8px 0 0">💡 휴대폰 브라우저의 "번역" 기능을 켜면 원문도 한국어로 볼 수 있어요.</p></div>' + original;
       }
       view.innerHTML =
         '<article class="article">' +
@@ -789,7 +790,7 @@
           (a.live ? '<div class="small muted" style="margin-top:4px">' + esc(a.source.name) + (a.dateLabel ? " · " + a.dateLabel : "") + "</div>" : "") +
           '<div class="seg" role="tablist">' +
             '<button class="' + (mode === "summary" ? "on" : "") + '" data-mode="summary">📝 요약 (' + (a.summaryLang === "ko" ? "한국어" : "영어") + ")</button>" +
-            '<button class="' + (mode === "full" ? "on" : "") + '" data-mode="full">📄 전문 (영어)</button>' +
+            '<button class="' + (mode === "full" ? "on" : "") + '" data-mode="full">📄 전문 (' + (a.live && !a.body.length ? "원문 링크" : "영어") + ")</button>" +
           "</div>" +
           body +
           (a.words.length

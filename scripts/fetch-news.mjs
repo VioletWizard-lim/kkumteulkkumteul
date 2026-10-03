@@ -32,6 +32,8 @@ const DEFAULT_MAX_AGE_DAYS = 10;
 const MIN_BODY_CHARS = 400;
 
 const config = JSON.parse(fs.readFileSync(SOURCES_FILE, "utf8"));
+// 전체 스위치: false 면 어떤 소스든 기사 본문을 저장하지 않습니다 (저작권 보호).
+const STORE_FULL_TEXT = config.storeFullText !== false;
 
 function readExisting() {
   try {
@@ -327,24 +329,26 @@ async function addTranslations(item) {
 
 async function buildItem(c, fromFallback) {
   let body = [];
+  const wantBody = STORE_FULL_TEXT && c.feed.fullText;
   if (/news\.google\./.test(c.url)) {
+    // 원문 링크를 실제 언론사 주소로 바꿉니다. 본문은 설정이 켜져 있을 때만 가져와요.
     const real = await resolveGoogleNewsUrl(c.url);
-    if (real) {
-      c.url = real;
+    if (real) c.url = real;
+    if (real && wantBody) {
       try {
         body = await extractBody(real);
       } catch (e) {
         console.warn(`[body] ${real}: ${e.message}`);
       }
     }
-  } else if (c.feed.fullText) {
+  } else if (wantBody) {
     try {
       body = await extractBody(c.url);
     } catch (e) {
       console.warn(`[body] ${c.url}: ${e.message}`);
     }
   }
-  if (c.feed.fullText && !body.length && !c.snippet) return null;
+  if (wantBody && !body.length && !c.snippet) return null;
 
   const item = {
     id: idFor(c.url),
@@ -380,6 +384,18 @@ async function buildItem(c, fromFallback) {
 
 async function main() {
   const existing = readExisting();
+  // 본문 저장이 꺼져 있으면, 이미 저장된 본문과 본문 번역도 지웁니다.
+  let removedBodies = 0;
+  if (!STORE_FULL_TEXT) {
+    for (const item of existing) {
+      if (item.body?.length || item.bodyKo?.length) {
+        item.body = [];
+        delete item.bodyKo;
+        removedBodies++;
+      }
+    }
+    if (removedBodies) console.log(`[info] removed stored full text from ${removedBodies} items (storeFullText: false)`);
+  }
   const perRun = Number(process.env.NEWS_PER_RUN) || (existing.length ? 1 : 3);
   const added = [];
   const primary = config.feeds.filter((f) => !f.fallback);
@@ -406,7 +422,11 @@ async function main() {
     if (backfilled >= 5) break;
     if (!item.body?.length && /news\.google\./.test(item.url)) {
       const real = await resolveGoogleNewsUrl(item.url);
-      if (real) {
+      if (real && !STORE_FULL_TEXT) {
+        item.url = real;
+        backfilled++;
+        console.log(`[gnews] resolved link: ${real}`);
+      } else if (real) {
         item.url = real;
         try {
           item.body = await extractBody(real);
@@ -432,7 +452,7 @@ async function main() {
     }
   }
 
-  if (!added.length && !backfilled) {
+  if (!added.length && !backfilled && !removedBodies) {
     // 앱이 저장된 지난 기사를 날마다 돌아가며 보여 줍니다.
     console.log("[info] no new article today; the app will show a past article");
     return;
