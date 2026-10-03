@@ -106,7 +106,9 @@ async function collectCandidates(existing, feeds) {
         const m = title.match(/^(.*) - ([^-]+)$/);
         if (m) { title = m[1].trim(); source = m[2].trim(); }
       }
-      const snippet = (item.contentSnippet || item.content || "").replace(/\s+/g, " ").trim();
+      let snippet = (item.contentSnippet || item.content || "").replace(/\s+/g, " ").trim();
+      // Google News 요약 끝에 붙는 언론사 이름 제거
+      if (snippet.endsWith(source)) snippet = snippet.slice(0, -source.length).trim();
       const categories = (item.categories || []).map((c) => (typeof c === "string" ? c : c?._ || "")).join(" ");
       if (!isEducationArticle(title, `${snippet} ${categories}`)) continue;
       const published = item.isoDate || (item.pubDate ? new Date(item.pubDate).toISOString() : null);
