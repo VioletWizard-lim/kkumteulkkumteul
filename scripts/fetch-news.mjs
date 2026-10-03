@@ -44,7 +44,16 @@ function readExisting() {
 function escapeRegExp(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-const keywordRe = new RegExp("\\b(" + config.keywords.map(escapeRegExp).join("|") + ")\\b", "i");
+const keywordRe = new RegExp("\\b(" + config.keywords.map(escapeRegExp).join("|") + ")\\b", "gi");
+const SKIP_TITLE_RE = /^(video|podcast|live|watch)\b|podcast|this week in finland|news in brief/i;
+
+// 제목에 교육 키워드가 있거나, 요약·분류에 서로 다른 교육 키워드가 2개 이상 있어야 교육 기사로 봅니다.
+function isEducationArticle(title, text) {
+  if (SKIP_TITLE_RE.test(title)) return false;
+  if ((title.match(keywordRe) || []).length) return true;
+  const hits = new Set((text.match(keywordRe) || []).map((k) => k.toLowerCase()));
+  return hits.size >= 2;
+}
 
 function normTitle(t) {
   return t.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -98,7 +107,7 @@ async function collectCandidates(existing, feeds) {
       }
       const snippet = (item.contentSnippet || item.content || "").replace(/\s+/g, " ").trim();
       const categories = (item.categories || []).map((c) => (typeof c === "string" ? c : c?._ || "")).join(" ");
-      if (!keywordRe.test(`${title} ${snippet} ${categories}`)) continue;
+      if (!isEducationArticle(title, `${snippet} ${categories}`)) continue;
       const published = item.isoDate || (item.pubDate ? new Date(item.pubDate).toISOString() : null);
       if (published && Date.parse(published) < cutoff) continue;
       if (seenUrls.has(item.link) || seenTitles.has(normTitle(title))) continue;
