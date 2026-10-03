@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-03T13:36:46.048Z",
+  "updated": "2026-10-03T13:42:31.580Z",
   "items": [
+    {
+      "id": "live-0ed313c954",
+      "addedDate": "2026-10-03",
+      "archived": false,
+      "published": "2026-09-30T10:10:00.000Z",
+      "source": "NDTV",
+      "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxNODFhZDYtV3dycFh0QXBlYXl0RkFXTUhnOGVvV1VObEYwcVJCak5fT1dXYVgyYjluMS04YXBPU3NNVkZLdWN0MDctZUNaM3RMMHZUTVRwLXhreXpqX0hZak1YTk1wWlpsM0szY3JsVDJ0eHloVzhsTW9ralE5S1ZDZm5KMmlxMWpaMGtjN3Y1ZnN4eWpfRkNaNEJ0bTIzUEh4Q1BNNUdaeHc0M1E1Z1hpQVpQUXBfb01BOWfSAcIBQVVfeXFMT2x4TUg4ZGNHZlB2Q1ByX2dYNW9fOGdhYWlfMnJtWU9vVzVreHpGRGJ6OUJtejctbjVUby1jSk9MbWFSUEhuMHF0LTdyRS1veTVLNHZKTUpiTFA1ZlA2NV9aN3MxTHJidngzaFUwb1V1RE1ONE1lQi1YVV91LTlzVWFJSEJ3Q0U4cE1BTHBiQnpaaW5WYnd0ZTZwSGQzbWRVb3JnbjRyVU5VaTljMkN5SnByeEtHeFFvdFZKTzY1SmlEdHc?oc=5",
+      "title": "UNESCO Honours Finland And Brazil AI-In-Education Projects With 2026 ICT Prize",
+      "titleKo": "유네스코, 핀란드와 브라질의 AI 교육 프로젝트에 2026 ICT 상을 수여",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "유네스코, 2026년 ICT Prize NDTV로 핀란드와 브라질 AI 교육 프로젝트 선정"
+      ],
+      "summaryEn": [
+        "UNESCO Honours Finland And Brazil AI-In-Education Projects With 2026 ICT Prize NDTV"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-5fc04447ce",
       "addedDate": "2026-10-03",
@@ -9,14 +29,17 @@
       "source": "Vaasan yliopisto",
       "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxQOC1aSk5kcWh3dUozNXc4Y1dfWDBFaDZqRHNKY2N0YUhERU44VjFaRVJ2MmRvdzJOLTlnRm9EcVpRODdZT1FYWm5xVGR6UDJHN2cxbWx0S29VTDdTZ2tMU0FjQ2NHRU01Vmtwa2FrVW42NEs1encwUkNoV3JsRkwtcFd3QkZCVEM1enB5SG84TmxkZkxQWUp2bHlXcFFqSHRzSXpGUDBCVUVkS1o0OTZzTkY3Zl9vZVV0VC1nWDV2cHh5aDZ1RjBv?oc=5",
       "title": "University of Vaasa ranks among the world's top 500 universities and leads Finland in research quality",
-      "titleKo": "",
+      "titleKo": "바사 대학교(University of Vaasa)는 세계 상위 500개 대학교에 속하며 연구 품질 부문에서 핀란드를 선도하고 있습니다.",
       "tag": "교육 뉴스",
-      "summaryKo": [],
+      "summaryKo": [
+        "바사 대학교(University of Vaasa)는 세계 상위 500개 대학 중 하나이며 연구 품질 측면에서 핀란드를 선도하고 있습니다. Vaasan yliopisto"
+      ],
       "summaryEn": [
         "University of Vaasa ranks among the world's top 500 universities and leads Finland in research quality Vaasan yliopisto"
       ],
       "body": [],
-      "words": []
+      "words": [],
+      "summaryMachine": true
     }
   ]
 }
