@@ -2,6 +2,8 @@
 (function () {
   "use strict";
 
+  const APP_VERSION = "2026.10.04-3";
+
   // ---------- 저장소 ----------
   const STORE_KEY = "kkumteul.v1";
   const defaults = { progress: {}, favorites: [], settings: { accent: "en-US", rate: 0.9, voiceURI: "", departure: "2027-01-08" } };
@@ -1210,6 +1212,9 @@
         '<div class="field"><label>말하기 속도: <span id="rateVal">' + s.rate.toFixed(1) + '</span>x</label><input type="range" id="setRate" min="0.5" max="1.3" step="0.1" value="' + s.rate + '"></div>' +
         '<div class="btn-row" style="margin-bottom:10px"><button class="btn secondary" id="testVoice">🔊 들어 보기</button></div>' +
         '<div class="btn-row"><button class="btn ghost" id="resetProgress">기록 초기화</button><button class="btn" id="closeSettings">닫기</button></div>' +
+        '<div class="btn-row" style="margin-top:10px"><button class="btn ghost" id="forceUpdate">🔄 최신 버전으로 새로고침</button></div>' +
+        '<p class="small muted" style="margin-top:10px">앱 버전 ' + APP_VERSION + " · " +
+          (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches ? "홈 화면 앱으로 실행 중" : "브라우저에서 실행 중") + "</p>" +
         '<p class="small muted" style="margin-top:14px">💡 홈 화면에 추가하면 앱처럼 쓸 수 있어요.<br>아이폰: 사파리 공유 버튼 → "홈 화면에 추가"<br>안드로이드: 크롬 메뉴 → "홈 화면에 추가"</p>' +
       "</div>",
       (root) => {
@@ -1222,6 +1227,13 @@
           if (confirm("모든 학습 기록을 지울까요?")) { state.progress = {}; save(); closeModal(); route(); toast("기록을 초기화했어요."); }
         };
         root.querySelector("#closeSettings").onclick = closeModal;
+        root.querySelector("#forceUpdate").onclick = () => {
+          // 저장해 둔 앱 파일을 지우고 서버에서 새로 받아요. (학습 기록은 그대로)
+          const jobs = [];
+          if (window.caches) jobs.push(caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))));
+          if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then((rs) => Promise.all(rs.map((r) => r.unregister()))));
+          Promise.all(jobs).catch(() => {}).then(() => location.replace(location.pathname + "?v=" + Date.now() + "#/"));
+        };
       }
     );
   }
