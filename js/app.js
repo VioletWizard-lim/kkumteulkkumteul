@@ -483,7 +483,8 @@
   function toKrw(r) {
     return { usd: r.KRW / r.USD, eur: r.KRW, czk: r.KRW / r.CZK };
   }
-  function fetchRates() {
+  // 유럽중앙은행 기준환율(하루 한 번 발표): 전날 대비 등락의 기준으로 씁니다.
+  function fetchEcbRates() {
     const url = "https://api.frankfurter.app/" + isoDaysAgo(10) + "..?from=EUR&to=KRW,USD,CZK";
     return fetch(url)
       .then((res) => { if (!res.ok) throw new Error("HTTP " + res.status); return res.json(); })
@@ -492,20 +493,47 @@
         if (!dates.length) throw new Error("no data");
         const last = dates[dates.length - 1];
         const prev = dates.length > 1 ? dates[dates.length - 2] : null;
-        return { date: last, prevDate: prev, now: toKrw(data.rates[last]), prev: prev ? toKrw(data.rates[prev]) : null, source: "유럽중앙은행 기준환율", fetchedAt: Date.now() };
-      })
-      .catch(() =>
-        fetch("https://open.er-api.com/v6/latest/EUR")
+        return { date: last, prevDate: prev, now: toKrw(data.rates[last]), prev: prev ? toKrw(data.rates[prev]) : null };
+      });
+  }
+  // 실시간 환율(Coinbase 공개 API, 키 필요 없음): 시세가 수시로 바뀌어 1시간마다 새로 받아 옵니다.
+  function fetchLiveRates() {
+    return fetch("https://api.coinbase.com/v2/exchange-rates?currency=USD")
+      .then((res) => { if (!res.ok) throw new Error("HTTP " + res.status); return res.json(); })
+      .then((data) => {
+        const r = (data.data && data.data.rates) || {};
+        const krw = parseFloat(r.KRW), eur = parseFloat(r.EUR), czk = parseFloat(r.CZK);
+        if (!(krw > 0 && eur > 0 && czk > 0)) throw new Error("missing rates");
+        return { usd: krw, eur: krw / eur, czk: krw / czk };
+      });
+  }
+  function fetchRates() {
+    const settle = (p) => p.then((v) => ({ ok: true, v: v }), () => ({ ok: false }));
+    return Promise.all([settle(fetchLiveRates()), settle(fetchEcbRates())])
+      .then(([live, ecb]) => {
+        if (live.ok) {
+          return {
+            live: true,
+            date: dateKey(),
+            now: live.v,
+            // 실시간 값은 가장 최근 유럽중앙은행 기준환율과 비교해 등락을 보여 줍니다.
+            prev: ecb.ok ? ecb.v.now : null,
+            prevDate: ecb.ok ? ecb.v.date : null,
+            source: "실시간 환율(Coinbase)",
+            fetchedAt: Date.now()
+          };
+        }
+        if (ecb.ok) return Object.assign({ live: false, source: "유럽중앙은행 기준환율", fetchedAt: Date.now() }, ecb.v);
+        return fetch("https://open.er-api.com/v6/latest/EUR")
           .then((res) => res.json())
           .then((data) => {
             if (data.result !== "success") throw new Error("fallback failed");
             const date = data.time_last_update_unix ? dateKey(new Date(data.time_last_update_unix * 1000)) : dateKey();
             const old = readRates();
-            // 이전에 저장한 값이 다른 날짜면 그것과 비교해 등락을 보여 줍니다.
             const prev = old && old.date !== date ? old : null;
-            return { date: date, prevDate: prev ? prev.date : null, now: toKrw(data.rates), prev: prev ? prev.now : null, source: "ExchangeRate-API", fetchedAt: Date.now() };
-          })
-      )
+            return { live: false, date: date, prevDate: prev ? prev.date : null, now: toKrw(data.rates), prev: prev ? prev.now : null, source: "ExchangeRate-API", fetchedAt: Date.now() };
+          });
+      })
       .then((r) => { writeRates(r); return r; });
   }
   function won(n) {
@@ -541,8 +569,11 @@
     }).join("");
     return rows +
       '<div class="rate-note">💳 맘에 드는 가격이 나오면 <b>트래블로그 카드</b>에 넣어 놓기!</div>' +
-      '<div class="small muted" style="margin-top:6px">' + esc(r.source) + " · " + esc(r.date) + " 기준" +
-      (r.prevDate ? " (▲▼는 " + esc(r.prevDate) + " 대비)" : "") +
+      '<div class="small muted" style="margin-top:6px">' +
+      (r.live
+        ? esc(r.source) + " · " + new Date(r.fetchedAt).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) + " 업데이트 (1시간마다 갱신)" +
+          (r.prevDate ? "<br>▲▼는 " + esc(r.prevDate) + " 유럽중앙은행 기준환율 대비" : "")
+        : esc(r.source) + " · " + esc(r.date) + " 기준" + (r.prevDate ? " (▲▼는 " + esc(r.prevDate) + " 대비)" : "")) +
       "<br>실제 충전·환전 환율과는 조금 다를 수 있어요. 🎯를 누르면 목표 환율을 정할 수 있어요.</div>";
   }
   function bindRatesCard(root) {
@@ -579,6 +610,12 @@
       if (el && !cached) el.innerHTML = '<div class="small muted">지금은 환율을 불러올 수 없어요. 인터넷 연결을 확인해 주세요.</div>';
     });
   }
+
+  // 홈 화면을 켜 둔 채로 있어도 1시간마다 새로 받아 옵니다.
+  setInterval(() => { if (document.getElementById("ratesCard") && !document.hidden) refreshRates(); }, 5 * 60000);
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && document.getElementById("ratesCard")) refreshRates();
+  });
 
   // ---------- 화면: 홈 ----------
   function renderHome() {
