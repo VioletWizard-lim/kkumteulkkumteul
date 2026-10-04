@@ -79,7 +79,7 @@ main { flex: 1; padding: 4px 16px calc(var(--tabbar-h) + env(safe-area-inset-bot
 .tabbar {
   position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
   width: 100%; max-width: 560px; z-index: 10;
-  display: grid; grid-template-columns: repeat(4, 1fr);
+  display: grid; grid-template-columns: repeat(5, 1fr);
   height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface); border-top: 1px solid var(--line);
@@ -213,3 +213,33 @@ main { flex: 1; padding: 4px 16px calc(var(--tabbar-h) + env(safe-area-inset-bot
 
 .confetti { position: fixed; top: -10px; font-size: 22px; z-index: 55; pointer-events: none; animation: fall linear forwards; }
 @keyframes fall { to { transform: translateY(105vh) rotate(540deg); } }
+
+/* 환율 */
+.rates { padding: 8px 16px 14px; }
+.rate-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.rate-row.hit { background: var(--success-soft); margin: 0 -16px; padding: 10px 16px; }
+.rate-emoji { font-size: 22px; }
+.rate-unit { font-weight: 700; }
+.rate-value { text-align: right; white-space: nowrap; }
+.rate-value b { font-size: 18px; }
+.rate-diff { font-size: 12px; font-weight: 700; margin-left: 2px; }
+.rate-diff.up { color: #e5484d; }
+.rate-diff.down { color: #3b82f6; }
+.rate-diff.flat { color: var(--muted); }
+.rate-hit { color: var(--success); font-weight: 700; }
+.icon-btn.small-btn { width: 32px; height: 32px; font-size: 15px; box-shadow: none; background: var(--surface-2); }
+.rate-note { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: #fff4e5; color: #8a4b00; font-size: 14px; }
+:root[data-theme="dark"] .rate-note { background: #3a2a12; color: #ffcf8a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .rate-note { background: #3a2a12; color: #ffcf8a; } }
+
+/* 관광지 */
+.info-card summary { cursor: pointer; list-style: none; }
+.info-card summary::-webkit-details-marker { display: none; }
+.info-card summary::after { content: " ▾"; color: var(--muted); }
+.info-card[open] summary::after { content: " ▴"; }
+.info-grid { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin-top: 12px; font-size: 14px; }
+.place .tags { margin: 8px 0 4px; display: flex; flex-wrap: wrap; gap: 4px; }
+.place-desc { margin: 8px 0; }
+.place-winter { margin: 0 0 10px; padding: 8px 10px; background: var(--primary-soft); border-radius: 10px; }
+.place-phrase { display: flex; gap: 10px; align-items: center; padding: 10px 12px; background: var(--surface-2); border-radius: 12px; }
+.fav-btn { border: 0; background: transparent; font-size: 26px; line-height: 1; color: #e5484d; padding: 0 4px; }

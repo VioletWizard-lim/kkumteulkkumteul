@@ -1,6 +1,6 @@
 // 오프라인에서도 앱을 열 수 있도록 파일을 캐시합니다.
 // 앱 파일을 수정하면 CACHE 버전을 올려 주세요.
-const CACHE = "kkumteul-v9";
+const CACHE = "kkumteul-v10";
 const FILES = [
   "./",
   "index.html",
@@ -20,6 +20,7 @@ const FILES = [
   "js/data/travel.js",
   "js/data/news.js",
   "js/data/messages.js",
+  "js/data/places.js",
   "manifest.webmanifest",
   "icons/icon.svg",
   "icons/icon-192.png",

@@ -4,13 +4,13 @@
 
   // ---------- 저장소 ----------
   const STORE_KEY = "kkumteul.v1";
-  const defaults = { progress: {}, settings: { accent: "en-US", rate: 0.9, voiceURI: "", departure: "2027-01-08" } };
+  const defaults = { progress: {}, favorites: [], settings: { accent: "en-US", rate: 0.9, voiceURI: "", departure: "2027-01-08" } };
   function load() {
     try {
       const raw = localStorage.getItem(STORE_KEY);
       if (!raw) return structuredClone(defaults);
       const data = JSON.parse(raw);
-      return { progress: data.progress || {}, settings: Object.assign({}, defaults.settings, data.settings) };
+      return { progress: data.progress || {}, settings: Object.assign({}, defaults.settings, data.settings), favorites: data.favorites || [] };
     } catch (e) {
       return structuredClone(defaults);
     }
@@ -460,6 +460,126 @@
     overlay.innerHTML = "";
   }
 
+  // ---------- 환율 (달러 · 유로 · 체코 코루나 → 원) ----------
+  // 유럽중앙은행 기준환율(Frankfurter API, 영업일마다 갱신)을 쓰고, 안 되면 open.er-api.com 을 씁니다.
+  // 마지막으로 받은 값은 기기에 저장해 두어 인터넷이 없어도 보여 줍니다.
+  const RATES_KEY = "kkumteul.rates";
+  const CURRENCIES = [
+    { code: "usd", label: "미국 달러", unit: "1달러", emoji: "💵" },
+    { code: "eur", label: "유로", unit: "1유로", emoji: "💶" },
+    { code: "czk", label: "체코 코루나", unit: "1코루나", emoji: "🇨🇿" }
+  ];
+  function readRates() {
+    try { return JSON.parse(localStorage.getItem(RATES_KEY) || "null"); } catch (e) { return null; }
+  }
+  function writeRates(r) {
+    try { localStorage.setItem(RATES_KEY, JSON.stringify(r)); } catch (e) { /* 저장 불가 */ }
+  }
+  function isoDaysAgo(n) {
+    const d = new Date();
+    d.setDate(d.getDate() - n);
+    return dateKey(d);
+  }
+  function toKrw(r) {
+    return { usd: r.KRW / r.USD, eur: r.KRW, czk: r.KRW / r.CZK };
+  }
+  function fetchRates() {
+    const url = "https://api.frankfurter.app/" + isoDaysAgo(10) + "..?from=EUR&to=KRW,USD,CZK";
+    return fetch(url)
+      .then((res) => { if (!res.ok) throw new Error("HTTP " + res.status); return res.json(); })
+      .then((data) => {
+        const dates = Object.keys(data.rates || {}).sort();
+        if (!dates.length) throw new Error("no data");
+        const last = dates[dates.length - 1];
+        const prev = dates.length > 1 ? dates[dates.length - 2] : null;
+        return { date: last, prevDate: prev, now: toKrw(data.rates[last]), prev: prev ? toKrw(data.rates[prev]) : null, source: "유럽중앙은행 기준환율", fetchedAt: Date.now() };
+      })
+      .catch(() =>
+        fetch("https://open.er-api.com/v6/latest/EUR")
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.result !== "success") throw new Error("fallback failed");
+            const date = data.time_last_update_unix ? dateKey(new Date(data.time_last_update_unix * 1000)) : dateKey();
+            const old = readRates();
+            // 이전에 저장한 값이 다른 날짜면 그것과 비교해 등락을 보여 줍니다.
+            const prev = old && old.date !== date ? old : null;
+            return { date: date, prevDate: prev ? prev.date : null, now: toKrw(data.rates), prev: prev ? prev.now : null, source: "ExchangeRate-API", fetchedAt: Date.now() };
+          })
+      )
+      .then((r) => { writeRates(r); return r; });
+  }
+  function won(n) {
+    return n.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function ratesCardHtml(r) {
+    const targets = state.settings.targets || {};
+    if (!r) {
+      return '<div class="small muted">환율을 불러오는 중이에요…</div>';
+    }
+    const rows = CURRENCIES.map((c) => {
+      const now = r.now[c.code];
+      const prev = r.prev ? r.prev[c.code] : null;
+      let diff = "";
+      if (prev) {
+        const d = now - prev;
+        const cls = d > 0.004 ? "up" : d < -0.004 ? "down" : "flat";
+        const sign = cls === "up" ? "▲" : cls === "down" ? "▼" : "-";
+        diff = '<span class="rate-diff ' + cls + '">' + sign + (cls === "flat" ? "" : " " + won(Math.abs(d))) + "</span>";
+      }
+      const target = targets[c.code];
+      const hit = target && now <= target;
+      return (
+        '<div class="rate-row' + (hit ? " hit" : "") + '">' +
+          '<span class="rate-emoji">' + c.emoji + "</span>" +
+          '<div class="grow"><div class="rate-unit">' + c.unit + "</div>" +
+          (target ? '<div class="small ' + (hit ? "rate-hit" : "muted") + '">🎯 목표 ' + won(target) + "원" + (hit ? " · 지금이 기회!" : "") + "</div>" : "") +
+          "</div>" +
+          '<div class="rate-value"><b>' + won(now) + "</b>원 " + diff + "</div>" +
+          '<button class="icon-btn small-btn" data-target="' + c.code + '" aria-label="' + c.label + ' 목표 환율 설정">🎯</button>' +
+        "</div>"
+      );
+    }).join("");
+    return rows +
+      '<div class="rate-note">💳 맘에 드는 가격이 나오면 <b>트래블로그 카드</b>에 넣어 놓기!</div>' +
+      '<div class="small muted" style="margin-top:6px">' + esc(r.source) + " · " + esc(r.date) + " 기준" +
+      (r.prevDate ? " (▲▼는 " + esc(r.prevDate) + " 대비)" : "") +
+      "<br>실제 충전·환전 환율과는 조금 다를 수 있어요. 🎯를 누르면 목표 환율을 정할 수 있어요.</div>";
+  }
+  function bindRatesCard(root) {
+    root.querySelectorAll("[data-target]").forEach((btn) => {
+      btn.onclick = () => {
+        const c = CURRENCIES.find((x) => x.code === btn.dataset.target);
+        const targets = state.settings.targets || (state.settings.targets = {});
+        const cur = targets[c.code] ? String(targets[c.code]) : "";
+        const v = prompt(c.unit + "이 몇 원 이하가 되면 알려 드릴까요?\n(지우려면 비워 두세요)", cur);
+        if (v === null) return;
+        const n = parseFloat(v.replace(/[^0-9.]/g, ""));
+        if (n > 0) targets[c.code] = n;
+        else delete targets[c.code];
+        save();
+        updateRatesCard(readRates());
+      };
+    });
+  }
+  function updateRatesCard(r) {
+    const el = document.getElementById("ratesCard");
+    if (!el) return;
+    el.innerHTML = ratesCardHtml(r);
+    bindRatesCard(el);
+  }
+  let ratesRequested = 0;
+  function refreshRates() {
+    const cached = readRates();
+    // 1시간 안에 받은 값이 있으면 다시 요청하지 않아요.
+    if (cached && Date.now() - cached.fetchedAt < 3600000) return;
+    if (Date.now() - ratesRequested < 60000) return;
+    ratesRequested = Date.now();
+    fetchRates().then(updateRatesCard).catch(() => {
+      const el = document.getElementById("ratesCard");
+      if (el && !cached) el.innerHTML = '<div class="small muted">지금은 환율을 불러올 수 없어요. 인터넷 연결을 확인해 주세요.</div>';
+    });
+  }
+
   // ---------- 화면: 홈 ----------
   function renderHome() {
     setHeader(null, null);
@@ -501,6 +621,8 @@
         "</div>" +
         '<div class="progress"><i style="width:' + pct + '%"></i></div>' +
       "</section>" +
+      '<div class="section-title">💱 오늘의 환율</div>' +
+      '<div class="card rates" id="ratesCard">' + ratesCardHtml(readRates()) + "</div>" +
       '<div class="section-title">📚 오늘의 영어 표현 30개</div>' +
       sessionRows +
       '<div class="section-title">🧳 여행 영어 회화</div>' +
@@ -511,8 +633,17 @@
         '<span class="check ' + (p.travel.length ? "on" : "") + '">✓</span>' +
       "</a>" +
       '<div class="section-title">📰 오늘의 핀란드 교육 뉴스 ' + (p.news ? '<span class="badge done">읽음</span>' : "") + "</div>" +
-      newsCard(news.article, news.label)
+      newsCard(news.article, news.label) +
+      '<div class="section-title">🗺️ 핀란드 · 체코 추천 관광지</div>' +
+      '<a class="card card-link row" href="#/places">' +
+        '<span class="emoji-lg">🏰</span>' +
+        '<div class="grow"><div class="headline-sm">가고 싶은 곳 골라 두기</div>' +
+        '<div class="small muted">헬싱키 · 라플란드 · 프라하 · 체스키 크룸로프 …' + (state.favorites.length ? " · ♥ " + state.favorites.length + "곳" : "") + "</div></div>" +
+        '<span class="muted">›</span>' +
+      "</a>"
     ));
+    bindRatesCard(view);
+    refreshRates();
   }
 
   // ---------- 화면: 단어 목록 ----------
@@ -834,6 +965,74 @@
     draw();
   }
 
+  // ---------- 화면: 추천 관광지 ----------
+  function mapUrl(p, country) {
+    return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(p.name + ", " + (country.id === "czech" ? "Czechia" : "Finland"));
+  }
+  function renderPlaces(countryId, onlyFav) {
+    const countries = window.PLACE_COUNTRIES;
+    const country = countries.find((c) => c.id === countryId) || countries[0];
+    setHeader("추천 관광지", null);
+    setTab("places");
+    const favs = state.favorites;
+    let html =
+      '<div class="seg" role="tablist" style="margin-top:6px">' +
+      countries.map((c) => '<button class="' + (c.id === country.id ? "on" : "") + '" data-country="' + c.id + '">' + c.flag + " " + esc(c.name) + "</button>").join("") +
+      "</div>" +
+      '<div class="toolbar"><button class="chip ' + (onlyFav ? "on" : "") + '" data-act="fav">♥ 가고 싶은 곳만 (' +
+        country.regions.reduce((n, r) => n + r.places.filter((p) => favs.indexOf(p.id) >= 0).length, 0) + ")</button></div>" +
+      '<details class="card info-card"><summary><b>' + country.flag + " " + esc(country.name) + " 여행 기본 정보</b></summary>" +
+        '<div class="info-grid">' + country.info.map((i) => "<div>" + esc(i[0]) + '</div><div class="muted">' + esc(i[1]) + "</div>").join("") + "</div>" +
+      "</details>";
+    let shown = 0;
+    country.regions.forEach((r) => {
+      const places = r.places.filter((p) => !onlyFav || favs.indexOf(p.id) >= 0);
+      if (!places.length) return;
+      shown += places.length;
+      html += '<div class="section-title">📍 ' + esc(r.name) + "</div>";
+      places.forEach((p) => {
+        const fav = favs.indexOf(p.id) >= 0;
+        html +=
+          '<div class="card place">' +
+            '<div class="row between" style="align-items:flex-start">' +
+              '<div class="grow"><div class="headline-sm">' + esc(p.ko) + '</div><div class="small muted">' + esc(p.name) + "</div></div>" +
+              '<button class="fav-btn' + (fav ? " on" : "") + '" data-fav="' + p.id + '" aria-label="가고 싶은 곳">' + (fav ? "♥" : "♡") + "</button>" +
+            "</div>" +
+            '<div class="tags">' + p.tags.map((t) => '<span class="badge">' + esc(t) + "</span>").join(" ") + "</div>" +
+            '<p class="place-desc">' + esc(p.desc) + "</p>" +
+            '<p class="small place-winter">❄️ ' + esc(p.winter) + "</p>" +
+            '<div class="place-phrase"><div class="grow"><div class="small muted">🗣️ 여기서 써먹는 영어</div><div style="font-weight:600">' + esc(p.phrase[0]) + '</div><div class="small muted">' + esc(p.phrase[1]) + "</div></div>" +
+              '<button class="speak-btn round" data-say="' + p.id + '" aria-label="듣기">🔊</button></div>' +
+            '<a class="btn ghost block" href="' + mapUrl(p, country) + '" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;margin-top:10px">📍 지도에서 보기</a>' +
+          "</div>";
+      });
+    });
+    if (!shown) html += '<div class="card muted">아직 고른 곳이 없어요. ♡를 눌러 가고 싶은 곳을 담아 보세요.</div>';
+    html += '<p class="small muted">※ 운영 시간과 요금은 계절마다 바뀌어요. 방문 전에 공식 홈페이지에서 꼭 확인하세요.</p>';
+    view.innerHTML = html;
+
+    const all = country.regions.flatMap((r) => r.places);
+    view.querySelectorAll("[data-country]").forEach((b) => {
+      b.onclick = () => { location.hash = "#/places/" + b.dataset.country; };
+    });
+    view.querySelector('[data-act="fav"]').onclick = () => renderPlaces(country.id, !onlyFav);
+    view.querySelectorAll("[data-fav]").forEach((b) => {
+      b.onclick = () => {
+        const id = b.dataset.fav;
+        const i = state.favorites.indexOf(id);
+        if (i >= 0) state.favorites.splice(i, 1);
+        else { state.favorites.push(id); toast("♥ 가고 싶은 곳에 담았어요"); }
+        save();
+        const y = window.scrollY;
+        renderPlaces(country.id, onlyFav);
+        window.scrollTo(0, y);
+      };
+    });
+    view.querySelectorAll("[data-say]").forEach((b) => {
+      b.onclick = () => speakButton(b, all.find((p) => p.id === b.dataset.say).phrase[0]);
+    });
+  }
+
   // ---------- 설정 ----------
   function openSettings() {
     loadVoices();
@@ -885,6 +1084,7 @@
     else if (a === "travel") renderTravelHome();
     else if (a === "news" && b) renderArticle(b);
     else if (a === "news") renderNewsHome();
+    else if (a === "places") renderPlaces(b);
     else renderHome();
     window.scrollTo(0, 0);
   }
