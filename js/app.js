@@ -383,7 +383,7 @@
     titleEl.textContent = title || APP_TITLE;
     document.title = title ? title + " · " + APP_TITLE : APP_TITLE;
     backBtn.hidden = !back;
-    backBtn.onclick = back ? () => (location.hash = back) : null;
+    backBtn.onclick = back ? () => goBack(back) : null;
   }
   function setTab(tab) {
     document.querySelectorAll(".tabbar a").forEach((a) => a.classList.toggle("active", a.dataset.tab === tab));
@@ -904,7 +904,7 @@
         if (!last) { i++; revealed = false; draw(); return; }
         todayProgress().words[session] = true;
         save();
-        showPraise(b.label + " 표현 10개 완료!", () => (location.hash = "#/words"));
+        showPraise(b.label + " 표현 10개 완료!", () => goBack("#/words"));
       };
     }
 
@@ -984,7 +984,7 @@
         const p = todayProgress();
         if (p.travel.indexOf(t.id) < 0) p.travel.push(t.id);
         save();
-        showPraise("'" + t.title + "' 회화 연습 완료!", () => (location.hash = "#/travel"));
+        showPraise("'" + t.title + "' 회화 연습 완료!", () => goBack("#/travel"));
       };
     }
 
@@ -1170,7 +1170,7 @@
 
     const all = country.regions.flatMap((r) => r.places);
     view.querySelectorAll("[data-country]").forEach((b) => {
-      b.onclick = () => { location.hash = "#/places/" + b.dataset.country; };
+      b.onclick = () => navigate("#/places/" + b.dataset.country);
     });
     view.querySelector('[data-act="fav"]').onclick = () => renderPlaces(country.id, !onlyFav);
     view.querySelectorAll("[data-fav]").forEach((b) => {
@@ -1245,7 +1245,74 @@
     else renderHome();
     window.scrollTo(0, 0);
   }
-  window.addEventListener("hashchange", route);
+  // ---------- 화면 이동과 뒤로 가기 ----------
+  // 방문 기록을 '홈 → 탭 → 상세' 최대 3단계로만 쌓습니다.
+  // 그래서 어디서든 뒤로 가기를 누르면 한 단계씩 올라가고, 홈에서 누르면 앱이 바로 종료돼요.
+  function normHash(h) {
+    const parts = (h || "").replace(/^#\/?/, "").split("/").filter(Boolean);
+    return parts.length ? "#/" + parts.join("/") : "#/";
+  }
+  function levelOf(h) {
+    return Math.min(normHash(h).replace(/^#\/?/, "").split("/").filter(Boolean).length, 2);
+  }
+  function currentDepth() {
+    return (history.state && history.state.depth) || 1;
+  }
+  function navigate(target) {
+    target = normHash(target);
+    const cur = normHash(location.hash);
+    if (target === cur) { route(); return; }
+    const depth = currentDepth();
+    const level = levelOf(target);
+    if (level === 0) {
+      // 홈으로: 쌓인 기록을 되돌려 홈 하나만 남깁니다.
+      if (depth > 1) history.go(-(depth - 1));
+      else { history.replaceState({ depth: 1 }, "", target); route(); }
+      return;
+    }
+    const isChild = target.indexOf(cur + "/") === 0 && cur !== "#/";
+    if (cur === "#/" || (isChild && depth < 3)) {
+      history.pushState({ depth: depth + 1 }, "", target);
+    } else if (level === 2 && depth === 2 && levelOf(cur) === 1) {
+      history.pushState({ depth: 3 }, "", target);
+    } else {
+      history.replaceState({ depth: depth }, "", target);
+    }
+    route();
+  }
+  // 화면 위 '‹' 버튼이나 연습 완료 후 돌아가기: 바로 아래 기록이 그 화면이면 뒤로, 아니면 이동
+  function goBack(fallback) {
+    const depth = currentDepth();
+    const level = levelOf(fallback);
+    if (level === 0 && depth > 1) { history.go(-(depth - 1)); return; }
+    // 홈 → 탭 → 상세로 들어온 경우, 바로 아래 기록이 그 탭이에요.
+    if (level === 1 && depth === 3) { history.back(); return; }
+    navigate(fallback);
+  }
+  // 앱 안의 모든 '#/…' 링크를 가로채서 위 규칙대로 이동합니다.
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey) return;
+    e.preventDefault();
+    navigate(a.getAttribute("href"));
+  });
+  window.addEventListener("popstate", route);
+  window.addEventListener("hashchange", () => {
+    // 주소창에서 직접 바꾼 경우
+    if (!history.state) history.replaceState({ depth: levelOf(location.hash) ? 2 : 1 }, "", normHash(location.hash));
+    route();
+  });
+  // 첫 실행: 홈이 아닌 주소로 열렸으면 아래에 홈을 깔아 두어 뒤로 가기가 홈으로 가게 합니다.
+  (function initHistory() {
+    const start = normHash(location.hash);
+    if (history.state && history.state.depth) return;
+    if (start === "#/") {
+      history.replaceState({ depth: 1 }, "", "#/");
+    } else {
+      history.replaceState({ depth: 1 }, "", "#/");
+      history.pushState({ depth: 2 }, "", start);
+    }
+  })();
   route();
   // 실시간 뉴스를 불러오면 홈/뉴스 화면을 다시 그립니다.
   loadLiveNews().then(() => {
