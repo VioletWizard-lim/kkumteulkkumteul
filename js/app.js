@@ -611,11 +611,128 @@
     });
   }
 
-  // 홈 화면을 켜 둔 채로 있어도 1시간마다 새로 받아 옵니다.
-  setInterval(() => { if (document.getElementById("ratesCard") && !document.hidden) refreshRates(); }, 5 * 60000);
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden && document.getElementById("ratesCard")) refreshRates();
-  });
+  // ---------- 날씨 (헬싱키 · 프라하 · 서울) ----------
+  // Open-Meteo 무료 API(키 필요 없음). 1시간마다 새로 받아 오고, 마지막 값은 기기에 저장해 둡니다.
+  const WEATHER_KEY = "kkumteul.weather";
+  const WEATHER_CITIES = [
+    { id: "helsinki", flag: "🇫🇮", name: "헬싱키", lat: 60.17, lon: 24.94, tip: true },
+    { id: "prague", flag: "🇨🇿", name: "프라하", lat: 50.08, lon: 14.44, tip: true },
+    { id: "seoul", flag: "🇰🇷", name: "서울", lat: 37.57, lon: 126.98, tip: false }
+  ];
+  // WMO 날씨 코드 → [아이콘, 설명]
+  function weatherInfo(code) {
+    if (code === 0) return ["☀️", "맑음"];
+    if (code === 1) return ["🌤️", "대체로 맑음"];
+    if (code === 2) return ["⛅", "구름 조금"];
+    if (code === 3) return ["☁️", "흐림"];
+    if (code === 45 || code === 48) return ["🌫️", "안개"];
+    if (code >= 51 && code <= 57) return ["🌦️", "이슬비"];
+    if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return ["🌧️", "비"];
+    if ((code >= 71 && code <= 77) || code === 85 || code === 86) return ["🌨️", "눈"];
+    if (code >= 95) return ["⛈️", "뇌우"];
+    return ["🌡️", "-"];
+  }
+  function clothingTip(t) {
+    if (t <= -15) return "🧥 혹한! 내복·패딩·방한화·모자·장갑 모두 필수";
+    if (t <= -5) return "🧣 내복과 두꺼운 패딩, 목도리·장갑을 챙기세요";
+    if (t <= 3) return "🧤 패딩이나 두꺼운 코트, 미끄럼 방지 신발 추천";
+    if (t <= 10) return "🧥 코트나 경량 패딩이면 좋아요";
+    if (t <= 18) return "👕 가벼운 겉옷 하나 챙기세요";
+    return "😎 가볍게 입어도 괜찮아요";
+  }
+  function readWeather() {
+    try { return JSON.parse(localStorage.getItem(WEATHER_KEY) || "null"); } catch (e) { return null; }
+  }
+  function fetchWeather() {
+    const q = new URLSearchParams({
+      latitude: WEATHER_CITIES.map((c) => c.lat).join(","),
+      longitude: WEATHER_CITIES.map((c) => c.lon).join(","),
+      current: "temperature_2m,apparent_temperature,weather_code",
+      daily: "temperature_2m_max,temperature_2m_min,sunrise,sunset,daylight_duration",
+      timezone: "auto",
+      forecast_days: "1"
+    });
+    return fetch("https://api.open-meteo.com/v1/forecast?" + q)
+      .then((res) => { if (!res.ok) throw new Error("HTTP " + res.status); return res.json(); })
+      .then((data) => {
+        const list = Array.isArray(data) ? data : [data];
+        if (list.length !== WEATHER_CITIES.length) throw new Error("unexpected response");
+        const w = {
+          fetchedAt: Date.now(),
+          cities: list.map((d, i) => ({
+            id: WEATHER_CITIES[i].id,
+            offset: d.utc_offset_seconds,
+            temp: d.current.temperature_2m,
+            feels: d.current.apparent_temperature,
+            code: d.current.weather_code,
+            max: d.daily.temperature_2m_max[0],
+            min: d.daily.temperature_2m_min[0],
+            sunrise: d.daily.sunrise[0],
+            sunset: d.daily.sunset[0],
+            daylight: d.daily.daylight_duration ? d.daily.daylight_duration[0] : null
+          }))
+        };
+        try { localStorage.setItem(WEATHER_KEY, JSON.stringify(w)); } catch (e) { /* 저장 불가 */ }
+        return w;
+      });
+  }
+  function cityLocalTime(offsetSec) {
+    const d = new Date(Date.now() + offsetSec * 1000);
+    const h = d.getUTCHours(), m = d.getUTCMinutes();
+    return (h < 12 ? "오전 " : "오후 ") + (h % 12 || 12) + ":" + String(m).padStart(2, "0");
+  }
+  function hhmm(iso) {
+    return (iso || "").slice(11, 16);
+  }
+  function weatherCardHtml(w) {
+    if (!w) return '<div class="small muted">날씨를 불러오는 중이에요…</div>';
+    return w.cities.map((c) => {
+      const city = WEATHER_CITIES.find((x) => x.id === c.id);
+      const info = weatherInfo(c.code);
+      const dl = c.daylight != null ? Math.floor(c.daylight / 3600) + "시간 " + Math.round((c.daylight % 3600) / 60) + "분" : "";
+      return (
+        '<div class="wx-row">' +
+          '<div class="wx-main">' +
+            '<div class="wx-city">' + city.flag + " " + esc(city.name) + ' <span class="small muted">' + cityLocalTime(c.offset) + "</span></div>" +
+            '<div class="wx-icon" title="' + esc(info[1]) + '">' + info[0] + "</div>" +
+            '<div class="wx-temp">' + Math.round(c.temp) + "°</div>" +
+          "</div>" +
+          '<div class="small muted">' + esc(info[1]) + " · 체감 " + Math.round(c.feels) + "° · 최고 " + Math.round(c.max) + "° / 최저 " + Math.round(c.min) + "°</div>" +
+          '<div class="small muted">🌅 ' + hhmm(c.sunrise) + " · 🌇 " + hhmm(c.sunset) + (dl ? " · 낮 " + dl : "") + "</div>" +
+          (city.tip ? '<div class="small wx-tip">' + clothingTip(c.feels) + "</div>" : "") +
+        "</div>"
+      );
+    }).join("") +
+      '<div class="small muted" style="margin-top:6px">Open-Meteo · ' +
+      new Date(w.fetchedAt).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) + " 업데이트 (1시간마다 갱신)</div>";
+  }
+  function updateWeatherCard(w) {
+    const el = document.getElementById("weatherCard");
+    if (el) el.innerHTML = weatherCardHtml(w);
+  }
+  let weatherRequested = 0;
+  function refreshWeather() {
+    const cached = readWeather();
+    if (cached && Date.now() - cached.fetchedAt < 3600000) {
+      updateWeatherCard(cached); // 현지 시각만 새로 고침
+      return;
+    }
+    if (Date.now() - weatherRequested < 60000) return;
+    weatherRequested = Date.now();
+    fetchWeather().then(updateWeatherCard).catch(() => {
+      const el = document.getElementById("weatherCard");
+      if (el && !cached) el.innerHTML = '<div class="small muted">지금은 날씨를 불러올 수 없어요. 인터넷 연결을 확인해 주세요.</div>';
+    });
+  }
+
+  // 홈 화면을 켜 둔 채로 있어도 1시간마다 환율·날씨를 새로 받아 옵니다.
+  function refreshHomeData() {
+    if (document.hidden) return;
+    if (document.getElementById("ratesCard")) refreshRates();
+    if (document.getElementById("weatherCard")) refreshWeather();
+  }
+  setInterval(refreshHomeData, 5 * 60000);
+  document.addEventListener("visibilitychange", refreshHomeData);
 
   // ---------- 화면: 홈 ----------
   function renderHome() {
@@ -658,6 +775,8 @@
         "</div>" +
         '<div class="progress"><i style="width:' + pct + '%"></i></div>' +
       "</section>" +
+      '<div class="section-title">🌤️ 지금 날씨</div>' +
+      '<div class="card weather" id="weatherCard">' + weatherCardHtml(readWeather()) + "</div>" +
       '<div class="section-title">💱 오늘의 환율</div>' +
       '<div class="card rates" id="ratesCard">' + ratesCardHtml(readRates()) + "</div>" +
       '<div class="section-title">📚 오늘의 영어 표현 30개</div>' +
@@ -681,6 +800,7 @@
     ));
     bindRatesCard(view);
     refreshRates();
+    refreshWeather();
   }
 
   // ---------- 화면: 단어 목록 ----------

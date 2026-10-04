@@ -243,3 +243,12 @@ main { flex: 1; padding: 4px 16px calc(var(--tabbar-h) + env(safe-area-inset-bot
 .place-winter { margin: 0 0 10px; padding: 8px 10px; background: var(--primary-soft); border-radius: 10px; }
 .place-phrase { display: flex; gap: 10px; align-items: center; padding: 10px 12px; background: var(--surface-2); border-radius: 12px; }
 .fav-btn { border: 0; background: transparent; font-size: 26px; line-height: 1; color: #e5484d; padding: 0 4px; }
+
+/* 날씨 */
+.weather { padding: 6px 16px 12px; }
+.wx-row { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.wx-main { display: flex; align-items: center; gap: 8px; }
+.wx-city { flex: 1; font-weight: 800; }
+.wx-icon { font-size: 26px; line-height: 1; }
+.wx-temp { font-size: 26px; font-weight: 800; min-width: 56px; text-align: right; }
+.wx-tip { margin-top: 4px; color: var(--primary); font-weight: 600; }
