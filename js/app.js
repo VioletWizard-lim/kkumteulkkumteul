@@ -551,7 +551,7 @@
         const c = CURRENCIES.find((x) => x.code === btn.dataset.target);
         const targets = state.settings.targets || (state.settings.targets = {});
         const cur = targets[c.code] ? String(targets[c.code]) : "";
-        const v = prompt(c.unit + "이 몇 원 이하가 되면 알려 드릴까요?\n(지우려면 비워 두세요)", cur);
+        const v = prompt("🎯 " + c.label + " 목표 환율\n" + c.unit + "가 몇 원 이하로 내려가면 표시해 드릴까요?\n(목표를 지우려면 비워 두세요)", cur);
         if (v === null) return;
         const n = parseFloat(v.replace(/[^0-9.]/g, ""));
         if (n > 0) targets[c.code] = n;
