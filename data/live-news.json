@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-03T23:26:17.595Z",
+  "updated": "2026-10-04T23:42:40.586Z",
   "items": [
+    {
+      "id": "live-011438d35c",
+      "addedDate": "2026-10-05",
+      "archived": false,
+      "published": "2026-10-02T23:43:30.000Z",
+      "source": "Daily Finland",
+      "url": "https://www.dailyfinland.fi/education/51588/Kela-asks-explanation-from-25000-students-for-lack-of-study-progress",
+      "title": "Kela asks explanation from 25,000 students for lack of study progress",
+      "titleKo": "Kela는 25,000명의 학생에게 학습 진행 부족에 대한 설명을 요청합니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "Kela는 25,000명의 학생에게 학습 진행 부족에 대한 설명을 요청합니다."
+      ],
+      "summaryEn": [
+        "Kela asks explanation from 25,000 students for lack of study progress"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-a35d33ba72",
       "addedDate": "2026-10-04",
