@@ -1323,6 +1323,9 @@
 
   // ---------- 오프라인 지원 ----------
   if ("serviceWorker" in navigator && location.protocol === "https:") {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
+    navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((reg) => {
+      // 앱으로 돌아올 때마다 새 버전이 있는지 확인
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) reg.update().catch(() => {}); });
+    }).catch(() => {});
   }
 })();

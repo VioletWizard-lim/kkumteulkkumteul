@@ -1,6 +1,6 @@
 // 오프라인에서도 앱을 열 수 있도록 파일을 캐시합니다.
 // 앱 파일을 수정하면 CACHE 버전을 올려 주세요.
-const CACHE = "kkumteul-v14";
+const CACHE = "kkumteul-v15";
 const FILES = [
   "./",
   "index.html",
@@ -42,8 +42,10 @@ self.addEventListener("activate", (e) => {
 // 네트워크 우선, 실패하면 캐시 사용
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET" || new URL(e.request.url).origin !== location.origin) return;
+  // cache: "no-cache" → 매번 서버에 바뀐 파일이 있는지 확인해요(안 바뀌었으면 짧은 응답만 받아요).
+  // 그래서 새 버전을 배포하면 다음에 앱을 열 때 바로 반영돼요.
   e.respondWith(
-    fetch(e.request)
+    fetch(e.request, { cache: "no-cache" })
       .then((res) => {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(e.request, copy));
