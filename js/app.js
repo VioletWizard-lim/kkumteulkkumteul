@@ -732,6 +732,7 @@
     if (document.hidden) return;
     if (document.getElementById("ratesCard")) refreshRates();
     if (document.getElementById("weatherCard")) refreshWeather();
+    if (document.getElementById("scheduleCard")) refreshSchedule().catch(() => {});
   }
   setInterval(refreshHomeData, 5 * 60000);
   document.addEventListener("visibilitychange", refreshHomeData);
@@ -777,6 +778,8 @@
         "</div>" +
         '<div class="progress"><i style="width:' + pct + '%"></i></div>' +
       "</section>" +
+      '<div class="section-title">📅 오늘 일정</div>' +
+      '<div class="card" id="scheduleCard">' + scheduleCardHtml() + "</div>" +
       '<div class="section-title">🌤️ 지금 날씨</div>' +
       '<div class="card weather" id="weatherCard">' + weatherCardHtml(readWeather()) + "</div>" +
       '<div class="section-title">💱 오늘의 환율</div>' +
@@ -801,8 +804,10 @@
       "</a>"
     ));
     bindRatesCard(view);
+    bindScheduleCard(view);
     refreshRates();
     refreshWeather();
+    refreshSchedule().catch(() => {});
   }
 
   // ---------- 화면: 단어 목록 ----------
@@ -1192,6 +1197,403 @@
     });
   }
 
+  // ---------- 오늘 일정 (구글 시트 연동) ----------
+  // 시트 형식(첫 줄 제목): 날짜 | 시작 | 끝 | 일정 | 장소 | 주소 | 메모  (위도·경도 열은 선택)
+  // 시트는 "링크가 있는 모든 사용자 - 뷰어"로 공유하고, 그 링크를 ⚙︎ 설정 또는 js/config.js 에 넣어요.
+  const SCHEDULE_KEY = "kkumteul.schedule";
+  const GEO_KEY = "kkumteul.geo";
+  const LEG_KEY = "kkumteul.legs";
+  function scheduleSheetUrl() {
+    return (state.settings.scheduleUrl || (window.APP_CONFIG && window.APP_CONFIG.scheduleSheetUrl) || "").trim();
+  }
+  // 공유 링크 → CSV 주소
+  function sheetCsvUrls(link) {
+    const urls = [];
+    if (/\/spreadsheets\/d\/e\//.test(link) || /output=csv/.test(link)) {
+      urls.push(link.replace(/\/pubhtml.*$/, "/pub?output=csv").replace(/\/pub\?(?!.*output=csv).*$/, "/pub?output=csv"));
+    }
+    const m = link.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]{20,})/);
+    if (m && m[1] !== "e") {
+      const gid = (link.match(/[#&?]gid=(\d+)/) || [])[1];
+      urls.push("https://docs.google.com/spreadsheets/d/" + m[1] + "/gviz/tq?tqx=out:csv" + (gid ? "&gid=" + gid : ""));
+      urls.push("https://docs.google.com/spreadsheets/d/" + m[1] + "/export?format=csv" + (gid ? "&gid=" + gid : ""));
+    }
+    return urls;
+  }
+  function parseCsv(text) {
+    const rows = [];
+    let row = [], cell = "", q = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (q) {
+        if (ch === '"') {
+          if (text[i + 1] === '"') { cell += '"'; i++; } else q = false;
+        } else cell += ch;
+      } else if (ch === '"') q = true;
+      else if (ch === ",") { row.push(cell); cell = ""; }
+      else if (ch === "\n" || ch === "\r") {
+        if (ch === "\r" && text[i + 1] === "\n") i++;
+        row.push(cell); rows.push(row); row = []; cell = "";
+      } else cell += ch;
+    }
+    if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+    return rows.filter((r) => r.some((c) => c.trim() !== ""));
+  }
+  const COLS = {
+    date: /^(날짜|date|일자)/i, start: /^(시작|start|시간|time)/i, end: /^(끝|종료|end)/i,
+    title: /^(일정|제목|title|event|내용)/i, place: /^(장소|place|location)/i, address: /^(주소|address)/i,
+    memo: /^(메모|비고|note|memo)/i, lat: /^(위도|lat)/i, lon: /^(경도|lon|lng)/i
+  };
+  // 날짜 글자 → YYYY-MM-DD (연도가 없으면 출발일에 가까운 해로)
+  function parseSheetDate(v) {
+    v = (v || "").trim();
+    let y, mo, d, m;
+    if ((m = v.match(/^(\d{4})[-./년\s]+(\d{1,2})[-./월\s]+(\d{1,2})/))) { y = +m[1]; mo = +m[2]; d = +m[3]; }
+    else if ((m = v.match(/^(\d{1,2})[-./월\s]+(\d{1,2})/))) { mo = +m[1]; d = +m[2]; }
+    else if ((m = v.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)/))) { y = +m[1]; mo = +m[2] + 1; d = +m[3]; }
+    else return "";
+    if (!y) {
+      const dep = (state.settings.departure || "2027-01-08").slice(0, 4);
+      const base = +dep;
+      const cand = [base - 1, base, base + 1].map((yy) => ({ yy: yy, diff: Math.abs(Date.UTC(yy, mo - 1, d) - Date.parse(state.settings.departure || "2027-01-08")) }));
+      y = cand.sort((a, b) => a.diff - b.diff)[0].yy;
+    }
+    return y + "-" + String(mo).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+  }
+  function parseSheetTime(v) {
+    const m = (v || "").match(/(오전|오후|AM|PM)?\s*(\d{1,2})(?::|시\s*)?(\d{2})?\s*(분)?\s*(AM|PM)?/i);
+    if (!m) return "";
+    let h = +m[2];
+    const ap = (m[1] || m[5] || "").toUpperCase();
+    if ((ap === "오후" || ap === "PM") && h < 12) h += 12;
+    if ((ap === "오전" || ap === "AM") && h === 12) h = 0;
+    return String(h).padStart(2, "0") + ":" + (m[3] || "00");
+  }
+  function rowsToSchedule(rows) {
+    if (!rows.length) return [];
+    const head = rows[0].map((h) => h.trim());
+    const idx = {};
+    Object.keys(COLS).forEach((k) => { idx[k] = head.findIndex((h) => COLS[k].test(h)); });
+    if (idx.date < 0 || idx.title < 0) throw new Error("시트 첫 줄에 '날짜'와 '일정' 제목이 있어야 해요.");
+    const get = (r, k) => (idx[k] >= 0 ? (r[idx[k]] || "").trim() : "");
+    let lastDate = "";
+    return rows.slice(1).map((r) => {
+      const date = parseSheetDate(get(r, "date")) || lastDate;
+      lastDate = date;
+      const lat = parseFloat(get(r, "lat")), lon = parseFloat(get(r, "lon"));
+      return {
+        date: date, start: parseSheetTime(get(r, "start")), end: parseSheetTime(get(r, "end")),
+        title: get(r, "title"), place: get(r, "place"), address: get(r, "address"), memo: get(r, "memo"),
+        lat: isFinite(lat) ? lat : null, lon: isFinite(lon) ? lon : null
+      };
+    }).filter((e) => e.date && e.title).sort((a, b) => (a.date + (a.start || "99")).localeCompare(b.date + (b.start || "99")));
+  }
+  function readSchedule() {
+    try { return JSON.parse(localStorage.getItem(SCHEDULE_KEY) || "null"); } catch (e) { return null; }
+  }
+  function fetchSchedule() {
+    const link = scheduleSheetUrl();
+    const urls = sheetCsvUrls(link);
+    if (!urls.length) return Promise.reject(new Error("구글 시트 링크를 확인해 주세요."));
+    const tryUrl = (i) => fetch(urls[i], { cache: "no-store" })
+      .then((res) => { if (!res.ok) throw new Error("HTTP " + res.status); return res.text(); })
+      .then((text) => {
+        if (/^\s*</.test(text)) throw new Error("시트를 읽을 수 없어요. 공유 설정을 '링크가 있는 모든 사용자'로 바꿔 주세요.");
+        return text;
+      })
+      .catch((e) => (i + 1 < urls.length ? tryUrl(i + 1) : Promise.reject(e)));
+    return tryUrl(0).then((text) => {
+      const events = rowsToSchedule(parseCsv(text));
+      const data = { link: link, fetchedAt: Date.now(), events: events };
+      try { localStorage.setItem(SCHEDULE_KEY, JSON.stringify(data)); } catch (e) { /* 저장 불가 */ }
+      return data;
+    });
+  }
+  // 오늘 일정, 없으면 다가오는 첫 날 일정
+  function scheduleDayToShow(events) {
+    const today = dateKey();
+    const todays = events.filter((e) => e.date === today);
+    if (todays.length) return { date: today, label: "오늘", events: todays };
+    const next = events.find((e) => e.date > today);
+    if (next) return { date: next.date, label: "다가오는 일정", events: events.filter((e) => e.date === next.date) };
+    return null;
+  }
+  function koDate(iso) {
+    const [y, m, d] = iso.split("-").map(Number);
+    const dd = new Date(y, m - 1, d);
+    return m + "월 " + d + "일 (" + ["일", "월", "화", "수", "목", "금", "토"][dd.getDay()] + ")";
+  }
+  function timeRange(e) {
+    return e.start ? e.start + (e.end ? "~" + e.end : "") : "시간 미정";
+  }
+  function scheduleCardHtml() {
+    if (!scheduleSheetUrl()) {
+      return '<div class="small muted">구글 시트에 적은 여행 일정을 여기에 보여 줄 수 있어요.</div>' +
+        '<button class="btn secondary block" data-act="schedule-setup" style="margin-top:10px">📅 구글 시트 연결하기</button>';
+    }
+    const data = readSchedule();
+    if (!data || data.link !== scheduleSheetUrl()) return '<div class="small muted">일정을 불러오는 중이에요…</div>';
+    const day = scheduleDayToShow(data.events);
+    if (!day) return '<div class="small muted">남은 일정이 없어요. 시트에 일정을 추가해 보세요.</div>' +
+      '<a class="btn ghost block" href="#/schedule" style="display:block;text-align:center;text-decoration:none;margin-top:10px">전체 일정 보기</a>';
+    const dday = day.label === "오늘" ? "" : ' <span class="badge">D-' + (dayNumber(new Date(day.date + "T00:00")) - dayNumber()) + "</span>";
+    return '<div class="small muted" style="margin-bottom:4px">' + esc(day.label) + " · " + koDate(day.date) + dday + "</div>" +
+      day.events.slice(0, 5).map((e) =>
+        '<div class="sch-mini"><span class="sch-time">' + esc(e.start || "--:--") + '</span><div class="grow"><b>' + esc(e.title) + "</b>" +
+        (e.place ? '<div class="small muted">📍 ' + esc(e.place) + "</div>" : "") + "</div></div>"
+      ).join("") +
+      (day.events.length > 5 ? '<div class="small muted">외 ' + (day.events.length - 5) + "개</div>" : "") +
+      '<a class="btn ghost block" href="#/schedule/' + day.date + '" style="display:block;text-align:center;text-decoration:none;margin-top:10px">🗺️ 지도와 이동 시간 보기</a>';
+  }
+  function bindScheduleCard(root) {
+    const b = root.querySelector('[data-act="schedule-setup"]');
+    if (b) b.onclick = openScheduleSetup;
+  }
+  function updateScheduleCard() {
+    const el = document.getElementById("scheduleCard");
+    if (!el) return;
+    el.innerHTML = scheduleCardHtml();
+    bindScheduleCard(el);
+  }
+  let scheduleRequested = 0;
+  function refreshSchedule(force) {
+    if (!scheduleSheetUrl()) return Promise.resolve(null);
+    const cached = readSchedule();
+    if (!force && cached && cached.link === scheduleSheetUrl() && Date.now() - cached.fetchedAt < 10 * 60000) return Promise.resolve(cached);
+    if (!force && Date.now() - scheduleRequested < 30000) return Promise.resolve(cached);
+    scheduleRequested = Date.now();
+    return fetchSchedule().then((d) => { updateScheduleCard(); return d; }).catch((e) => {
+      const el = document.getElementById("scheduleCard");
+      if (el && !(cached && cached.link === scheduleSheetUrl())) el.innerHTML = '<div class="small muted">일정을 불러오지 못했어요. ' + esc(e.message) + "</div>";
+      throw e;
+    });
+  }
+  function openScheduleSetup() {
+    openModal(
+      '<div class="modal left">' +
+        "<h3>📅 구글 시트 일정 연결</h3>" +
+        '<ol class="small" style="padding-left:18px;margin:0 0 12px">' +
+          "<li>구글 시트 첫 줄에 <b>날짜 · 시작 · 끝 · 일정 · 장소 · 주소 · 메모</b> 제목을 적어요. (날짜와 일정은 꼭 필요해요)</li>" +
+          "<li>날짜는 <b>2027-01-09</b> 또는 <b>1/9</b>, 시간은 <b>09:30</b>처럼 적어요.</li>" +
+          "<li>오른쪽 위 <b>공유</b> → 일반 액세스를 <b>링크가 있는 모든 사용자(뷰어)</b>로 바꿔요.</li>" +
+          "<li><b>링크 복사</b> 후 아래에 붙여 넣어요.</li>" +
+        "</ol>" +
+        '<div class="field"><label>구글 시트 링크</label><input type="url" id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/..." value="' + esc(state.settings.scheduleUrl || "") + '"></div>' +
+        '<p class="small muted" id="sheetMsg" style="min-height:20px;margin:0 0 10px"></p>' +
+        '<div class="btn-row"><button class="btn ghost" id="sheetCancel">닫기</button><button class="btn" id="sheetSave">연결하기</button></div>' +
+        '<p class="small muted" style="margin-top:12px">💡 일정이 바뀌면 시트만 고치면 돼요. 앱이 열릴 때 새로 불러와요.<br>💡 예시 파일: 저장소의 docs/schedule-template.csv 를 시트로 가져오면 바로 쓸 수 있어요.</p>' +
+      "</div>",
+      (root) => {
+        root.querySelector("#sheetCancel").onclick = closeModal;
+        root.querySelector("#sheetSave").onclick = () => {
+          const v = root.querySelector("#sheetUrl").value.trim();
+          const msg = root.querySelector("#sheetMsg");
+          state.settings.scheduleUrl = v;
+          save();
+          if (!v) { msg.textContent = "연결을 해제했어요."; updateScheduleCard(); return; }
+          msg.textContent = "불러오는 중…";
+          refreshSchedule(true).then((d) => {
+            msg.textContent = "✅ 일정 " + d.events.length + "개를 불러왔어요!";
+            setTimeout(() => { closeModal(); route(); }, 900);
+          }).catch((e) => { msg.textContent = "⚠️ " + e.message; });
+        };
+      }
+    );
+  }
+
+  // ---------- 위치 찾기 · 이동 시간 ----------
+  // 주소 → 좌표: OpenStreetMap Nominatim (1초에 1번, 결과는 기기에 저장)
+  // 이동 시간: OpenStreetMap 경로 서버(도보·자동차). 대중교통은 구글 지도 길찾기로 연결.
+  function readJson(key) { try { return JSON.parse(localStorage.getItem(key) || "{}"); } catch (e) { return {}; } }
+  function writeJson(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) { /* 저장 불가 */ } }
+  function placeQuery(e) {
+    return (e.address || e.place || "").trim();
+  }
+  let geoChain = Promise.resolve();
+  function geocode(e) {
+    if (e.lat != null && e.lon != null) return Promise.resolve({ lat: e.lat, lon: e.lon });
+    const q = placeQuery(e);
+    if (!q) return Promise.resolve(null);
+    const cache = readJson(GEO_KEY);
+    if (cache[q] !== undefined) return Promise.resolve(cache[q]);
+    const job = geoChain.then(() => new Promise((r) => setTimeout(r, 1100))).then(() =>
+      fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=en&q=" + encodeURIComponent(q))
+        .then((res) => res.json())
+        .then((list) => {
+          const hit = list && list[0] ? { lat: +list[0].lat, lon: +list[0].lon } : null;
+          const c = readJson(GEO_KEY); c[q] = hit; writeJson(GEO_KEY, c);
+          return hit;
+        })
+        .catch(() => null)
+    );
+    geoChain = job.catch(() => null);
+    return job;
+  }
+  function haversineKm(a, b) {
+    const R = 6371, rad = Math.PI / 180;
+    const dLat = (b.lat - a.lat) * rad, dLon = (b.lon - a.lon) * rad;
+    const x = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(x));
+  }
+  function osrm(profile, a, b) {
+    const url = "https://routing.openstreetmap.de/" + profile + "/route/v1/driving/" + a.lon + "," + a.lat + ";" + b.lon + "," + b.lat + "?overview=full&geometries=geojson";
+    return fetch(url).then((res) => res.json()).then((d) => {
+      if (!d.routes || !d.routes[0]) throw new Error("no route");
+      return { sec: d.routes[0].duration, m: d.routes[0].distance, line: d.routes[0].geometry.coordinates };
+    });
+  }
+  function routeLeg(a, b) {
+    const key = [a.lat, a.lon, b.lat, b.lon].map((n) => n.toFixed(5)).join(",");
+    const cache = readJson(LEG_KEY);
+    if (cache[key]) return Promise.resolve(cache[key]);
+    const km = haversineKm(a, b);
+    const settle = (p) => p.then((v) => v, () => null);
+    return Promise.all([settle(osrm("routed-foot", a, b)), settle(osrm("routed-car", a, b))]).then(([foot, car]) => {
+      const leg = {
+        km: foot ? foot.m / 1000 : car ? car.m / 1000 : km * 1.3,
+        walkMin: foot ? Math.round(foot.sec / 60) : Math.round((km * 1.3) / 4.5 * 60),
+        carMin: car ? Math.round(car.sec / 60) : Math.round((km * 1.4) / 30 * 60),
+        estimated: !(foot && car),
+        line: foot ? foot.line : car ? car.line : null
+      };
+      if (foot || car) { const c = readJson(LEG_KEY); c[key] = leg; writeJson(LEG_KEY, c); }
+      return leg;
+    });
+  }
+  function fmtMin(min) {
+    if (min < 60) return min + "분";
+    return Math.floor(min / 60) + "시간" + (min % 60 ? " " + (min % 60) + "분" : "");
+  }
+  function gmapsDir(from, to, mode) {
+    const p = (e) => (e.lat != null && e.lon != null ? e.lat + "," + e.lon : placeQuery(e));
+    return "https://www.google.com/maps/dir/?api=1" + (from ? "&origin=" + encodeURIComponent(p(from)) : "") +
+      "&destination=" + encodeURIComponent(p(to)) + "&travelmode=" + mode;
+  }
+
+  // ---------- 화면: 일정 (지도 · 이동 시간) ----------
+  let leafletLoading = null;
+  function loadLeaflet() {
+    if (window.L) return Promise.resolve(window.L);
+    if (leafletLoading) return leafletLoading;
+    leafletLoading = new Promise((resolve, reject) => {
+      const css = document.createElement("link");
+      css.rel = "stylesheet";
+      css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(css);
+      const js = document.createElement("script");
+      js.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+      js.onload = () => resolve(window.L);
+      js.onerror = () => { leafletLoading = null; reject(new Error("지도를 불러오지 못했어요")); };
+      document.head.appendChild(js);
+    });
+    return leafletLoading;
+  }
+  function renderSchedule(dateArg) {
+    setHeader("여행 일정", "#/");
+    setTab("home");
+    if (!scheduleSheetUrl()) {
+      view.innerHTML = '<div class="card" style="margin-top:6px" id="scheduleCard">' + scheduleCardHtml() + "</div>";
+      bindScheduleCard(view);
+      return;
+    }
+    const data = readSchedule();
+    if (!data || data.link !== scheduleSheetUrl()) {
+      view.innerHTML = '<div class="card muted" style="margin-top:6px">일정을 불러오는 중이에요…</div>';
+      refreshSchedule(true).then(() => renderSchedule(dateArg)).catch((e) => {
+        view.innerHTML = '<div class="card" style="margin-top:6px">⚠️ ' + esc(e.message) + '<br><button class="btn secondary" data-act="schedule-setup" style="margin-top:10px">시트 연결 다시 하기</button></div>';
+        bindScheduleCard(view);
+      });
+      return;
+    }
+    const dates = Array.from(new Set(data.events.map((e) => e.date)));
+    if (!dates.length) { view.innerHTML = '<div class="card muted" style="margin-top:6px">시트에 일정이 없어요.</div>'; return; }
+    const show = scheduleDayToShow(data.events);
+    const date = dates.indexOf(dateArg) >= 0 ? dateArg : show ? show.date : dates[dates.length - 1];
+    const events = data.events.filter((e) => e.date === date);
+
+    let html =
+      '<div class="date-chips">' + dates.map((d) => '<button class="chip ' + (d === date ? "on" : "") + '" data-date="' + d + '">' + koDate(d) + "</button>").join("") + "</div>" +
+      '<div id="tripMap" class="trip-map"><div class="small muted" style="padding:12px">지도를 불러오는 중이에요…</div></div>' +
+      '<div class="timeline">';
+    events.forEach((e, i) => {
+      if (i > 0) html += '<div class="leg" id="leg-' + i + '"><div class="small muted">🧭 이동 시간 계산 중…</div></div>';
+      html +=
+        '<div class="card sch-item">' +
+          '<div class="row"><span class="sch-num">' + (i + 1) + '</span><div class="grow"><div class="small muted">' + esc(timeRange(e)) + "</div>" +
+          '<div class="headline-sm">' + esc(e.title) + "</div></div></div>" +
+          (e.place || e.address ? '<div class="small" style="margin-top:6px">📍 ' + esc(e.place || "") + (e.address && e.address !== e.place ? ' <span class="muted">' + esc(e.address) + "</span>" : "") + "</div>" : "") +
+          (e.memo ? '<div class="small sch-memo">📝 ' + esc(e.memo) + "</div>" : "") +
+          (placeQuery(e) || e.lat != null ? '<div class="btn-row" style="margin-top:10px">' +
+            '<a class="btn ghost" target="_blank" rel="noopener" style="text-align:center;text-decoration:none;font-size:14px" href="' + gmapsDir(null, e, "transit") + '">📍 지금 위치에서 가는 길</a>' +
+          "</div>" : "") +
+        "</div>";
+    });
+    html += "</div>" +
+      '<p class="small muted">🚶 도보 · 🚗 차 시간은 OpenStreetMap 경로 기준 예상 시간이에요. 버스·트램·지하철은 🚇 버튼을 누르면 구글 지도에서 실시간 노선과 시간을 볼 수 있어요.</p>' +
+      '<div class="btn-row"><button class="btn ghost" data-act="reload">🔄 시트에서 다시 불러오기</button></div>' +
+      '<p class="small muted">' + new Date(data.fetchedAt).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) + " 시트에서 불러옴</p>";
+    view.innerHTML = html;
+    view.querySelectorAll("[data-date]").forEach((b) => { b.onclick = () => navigate("#/schedule/" + b.dataset.date); });
+    view.querySelector('[data-act="reload"]').onclick = () => {
+      refreshSchedule(true).then(() => { toast("일정을 새로 불러왔어요"); renderSchedule(date); }).catch((e) => toast("⚠️ " + e.message));
+    };
+    const token = ++scheduleToken;
+    // 좌표 찾기 → 이동 시간 → 지도
+    Promise.all(events.map(geocode)).then((points) => {
+      if (token !== scheduleToken) return;
+      const legs = [];
+      events.forEach((e, i) => {
+        if (i === 0) return;
+        const el = document.getElementById("leg-" + i);
+        const a = points[i - 1], b = points[i];
+        if (!a || !b) {
+          if (el) el.innerHTML = '<div class="small muted">위치를 찾지 못해 이동 시간을 계산할 수 없어요. 시트에 주소를 적어 주세요.</div>' +
+            (placeQuery(events[i]) ? '<a class="leg-btn" target="_blank" rel="noopener" href="' + gmapsDir(events[i - 1], events[i], "transit") + '">🚇 대중교통 길찾기</a>' : "");
+          return;
+        }
+        const from = Object.assign({}, events[i - 1], a), to = Object.assign({}, events[i], b);
+        legs.push(routeLeg(a, b).then((leg) => {
+          if (token !== scheduleToken) return leg;
+          if (el) el.innerHTML =
+            '<div class="leg-times">' + (leg.estimated ? "약 " : "") + "🚶 도보 <b>" + fmtMin(leg.walkMin) + "</b> · 🚗 차 <b>" + fmtMin(leg.carMin) + "</b> · " + leg.km.toFixed(1) + "km</div>" +
+            '<div class="leg-btns">' +
+              '<a class="leg-btn" target="_blank" rel="noopener" href="' + gmapsDir(from, to, "transit") + '">🚇 대중교통</a>' +
+              '<a class="leg-btn" target="_blank" rel="noopener" href="' + gmapsDir(from, to, "walking") + '">🚶 도보</a>' +
+              '<a class="leg-btn" target="_blank" rel="noopener" href="' + gmapsDir(from, to, "driving") + '">🚕 택시</a>' +
+            "</div>";
+          return leg;
+        }));
+      });
+      return Promise.all(legs).then((legResults) => drawTripMap(token, points, events, legResults));
+    });
+  }
+  let scheduleToken = 0;
+  function drawTripMap(token, points, events, legs) {
+    const box = document.getElementById("tripMap");
+    if (!box || token !== scheduleToken) return;
+    const pts = points.map((p, i) => (p ? { p: p, i: i } : null)).filter(Boolean);
+    if (!pts.length) { box.innerHTML = '<div class="small muted" style="padding:12px">지도에 표시할 위치가 없어요. 시트에 장소나 주소를 적어 주세요.</div>'; return; }
+    loadLeaflet().then((L) => {
+      if (token !== scheduleToken || !document.getElementById("tripMap")) return;
+      box.innerHTML = "";
+      const map = L.map(box, { zoomControl: true, attributionControl: true });
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(map);
+      const bounds = [];
+      pts.forEach(({ p, i }) => {
+        const icon = L.divIcon({ className: "map-num", html: "<span>" + (i + 1) + "</span>", iconSize: [28, 28], iconAnchor: [14, 14] });
+        L.marker([p.lat, p.lon], { icon: icon }).addTo(map).bindPopup("<b>" + esc(events[i].title) + "</b><br>" + esc(timeRange(events[i])));
+        bounds.push([p.lat, p.lon]);
+      });
+      (legs || []).forEach((leg) => {
+        if (leg && leg.line) L.polyline(leg.line.map((c) => [c[1], c[0]]), { color: "#2f6fdf", weight: 4, opacity: 0.75 }).addTo(map);
+      });
+      if (bounds.length === 1) map.setView(bounds[0], 15);
+      else map.fitBounds(bounds, { padding: [30, 30] });
+    }).catch(() => {
+      box.innerHTML = '<div class="small muted" style="padding:12px">지도를 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</div>';
+    });
+  }
+
   // ---------- 설정 ----------
   function openSettings() {
     loadVoices();
@@ -1202,6 +1604,7 @@
     openModal(
       '<div class="modal left">' +
         '<h3>⚙︎ 설정</h3>' +
+        '<div class="field"><label>📅 일정 구글 시트</label><button class="btn ghost block" id="openSheet">' + (scheduleSheetUrl() ? "✅ 연결됨 · 바꾸기" : "연결하기") + "</button></div>" +
         '<div class="field"><label>✈️ 핀란드 출발일</label><input type="date" id="setDeparture" value="' + esc(s.departure || "") + '"></div>' +
         '<div class="field"><label>발음 (억양)</label><select id="setAccent">' +
           '<option value="en-US"' + (s.accent === "en-US" ? " selected" : "") + ">🇺🇸 미국식</option>" +
@@ -1227,6 +1630,7 @@
           if (confirm("모든 학습 기록을 지울까요?")) { state.progress = {}; save(); closeModal(); route(); toast("기록을 초기화했어요."); }
         };
         root.querySelector("#closeSettings").onclick = closeModal;
+        root.querySelector("#openSheet").onclick = openScheduleSetup;
         root.querySelector("#forceUpdate").onclick = () => {
           // 저장해 둔 앱 파일을 지우고 서버에서 새로 받아요. (학습 기록은 그대로)
           const jobs = [];
@@ -1241,6 +1645,7 @@
 
   // ---------- 라우터 ----------
   function route() {
+    scheduleToken++;
     stopSpeaking();
     document.querySelectorAll(".confetti").forEach((el) => el.remove());
     closeModal();
@@ -1254,6 +1659,7 @@
     else if (a === "news" && b) renderArticle(b);
     else if (a === "news") renderNewsHome();
     else if (a === "places") renderPlaces(b);
+    else if (a === "schedule") renderSchedule(b);
     else renderHome();
     window.scrollTo(0, 0);
   }
