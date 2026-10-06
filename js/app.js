@@ -387,8 +387,41 @@
     backBtn.hidden = !back;
     backBtn.onclick = back ? () => goBack(back) : null;
   }
-  function setTab(tab) {
-    document.querySelectorAll(".tabbar a").forEach((a) => a.classList.toggle("active", a.dataset.tab === tab));
+  // 하단 탭: 홈 · 영어 공부 · 여행 · 설정. 영어 공부와 여행은 위쪽 작은 메뉴(서브 탭)로 다시 나뉘어요.
+  const TAB_GROUPS = {
+    study: [["words", "📚 오늘 단어"], ["travel", "🗣️ 여행회화"], ["news", "📰 교육뉴스"]],
+    trip: [["schedule", "📅 일정"], ["places", "🗺️ 관광지"], ["info", "💱 환율·날씨"]]
+  };
+  function groupOf(section) {
+    if (TAB_GROUPS.study.some((x) => x[0] === section)) return "study";
+    if (TAB_GROUPS.trip.some((x) => x[0] === section)) return "trip";
+    return section;
+  }
+  const subnav = document.getElementById("subnav");
+  function setTab(section) {
+    const group = groupOf(section);
+    document.querySelectorAll(".tabbar a").forEach((a) => a.classList.toggle("active", a.dataset.tab === group));
+    // 마지막으로 본 서브 탭을 기억해 두었다가 하단 탭을 누르면 그리로 가요.
+    if (TAB_GROUPS[group]) {
+      state.settings["lastTab_" + group] = section;
+      save();
+      updateTabLinks();
+    }
+    const parts = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
+    const isRootPage = parts.length <= 1;
+    if (TAB_GROUPS[group] && isRootPage) {
+      subnav.innerHTML = TAB_GROUPS[group].map((x) => '<a href="#/' + x[0] + '" class="' + (x[0] === section ? "on" : "") + '">' + x[1] + "</a>").join("");
+      subnav.hidden = false;
+    } else {
+      subnav.hidden = true;
+      subnav.innerHTML = "";
+    }
+  }
+  function updateTabLinks() {
+    document.querySelectorAll(".tabbar a[data-tab]").forEach((a) => {
+      const g = a.dataset.tab;
+      if (TAB_GROUPS[g]) a.setAttribute("href", "#/" + (state.settings["lastTab_" + g] || TAB_GROUPS[g][0][0]));
+    });
   }
   function pick(list) {
     return list[Math.floor(Math.random() * list.length)];
@@ -1489,8 +1522,8 @@
     return leafletLoading;
   }
   function renderSchedule(dateArg) {
-    setHeader("여행 일정", "#/");
-    setTab("home");
+    setHeader("여행 일정", dateArg ? "#/schedule" : null);
+    setTab("schedule");
     if (!scheduleSheetUrl()) {
       view.innerHTML = '<div class="card" style="margin-top:6px" id="scheduleCard">' + scheduleCardHtml() + "</div>";
       bindScheduleCard(view);
@@ -1533,7 +1566,7 @@
       '<div class="btn-row"><button class="btn ghost" data-act="reload">🔄 시트에서 다시 불러오기</button></div>' +
       '<p class="small muted">' + new Date(data.fetchedAt).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) + " 시트에서 불러옴</p>";
     view.innerHTML = html;
-    view.querySelectorAll("[data-date]").forEach((b) => { b.onclick = () => navigate("#/schedule/" + b.dataset.date); });
+    view.querySelectorAll("[data-date]").forEach((b) => { b.onclick = () => (dateArg ? navigate("#/schedule/" + b.dataset.date) : renderSchedule(b.dataset.date)); });
     view.querySelector('[data-act="reload"]').onclick = () => {
       refreshSchedule(true).then(() => { toast("일정을 새로 불러왔어요"); renderSchedule(date); }).catch((e) => toast("⚠️ " + e.message));
     };
@@ -1552,6 +1585,13 @@
           return;
         }
         const from = Object.assign({}, events[i - 1], a), to = Object.assign({}, events[i], b);
+        // 비행기·장거리 기차처럼 먼 이동은 도보·차 시간을 계산하지 않아요.
+        const far = haversineKm(a, b);
+        if (far > 150) {
+          if (el) el.innerHTML = '<div class="leg-times">✈️ 장거리 이동 · 직선거리 약 ' + Math.round(far).toLocaleString("ko-KR") + "km</div>" +
+            '<div class="small muted">비행기·기차 시간은 예약 내역을 확인하세요.</div>';
+          return;
+        }
         legs.push(routeLeg(a, b).then((leg) => {
           if (token !== scheduleToken) return leg;
           if (el) el.innerHTML =
@@ -1594,18 +1634,35 @@
     });
   }
 
+  // ---------- 화면: 환율 · 날씨 ----------
+  function renderInfo() {
+    setHeader("환율 · 날씨", null);
+    setTab("info");
+    view.innerHTML =
+      '<div class="section-title" style="margin-top:6px">🌤️ 지금 날씨</div>' +
+      '<div class="card weather" id="weatherCard">' + weatherCardHtml(readWeather()) + "</div>" +
+      '<div class="section-title">💱 오늘의 환율</div>' +
+      '<div class="card rates" id="ratesCard">' + ratesCardHtml(readRates()) + "</div>";
+    bindRatesCard(view);
+    refreshRates();
+    refreshWeather();
+  }
+
   // ---------- 설정 ----------
-  function openSettings() {
+  function settingsHtml() {
     loadVoices();
     const s = state.settings;
     const voiceOpts =
       '<option value="">자동 선택</option>' +
       voices.map((v) => '<option value="' + esc(v.voiceURI) + '"' + (v.voiceURI === s.voiceURI ? " selected" : "") + ">" + esc(v.name + " (" + v.lang + ")") + "</option>").join("");
-    openModal(
-      '<div class="modal left">' +
-        '<h3>⚙︎ 설정</h3>' +
+    return (
+      '<div class="section-title" style="margin-top:6px">✈️ 여행</div>' +
+      '<div class="card">' +
         '<div class="field"><label>📅 일정 구글 시트</label><button class="btn ghost block" id="openSheet">' + (scheduleSheetUrl() ? "✅ 연결됨 · 바꾸기" : "연결하기") + "</button></div>" +
-        '<div class="field"><label>✈️ 핀란드 출발일</label><input type="date" id="setDeparture" value="' + esc(s.departure || "") + '"></div>' +
+        '<div class="field" style="margin-bottom:0"><label>✈️ 핀란드 출발일</label><input type="date" id="setDeparture" value="' + esc(s.departure || "") + '"></div>' +
+      "</div>" +
+      '<div class="section-title">🔊 발음</div>' +
+      '<div class="card">' +
         '<div class="field"><label>발음 (억양)</label><select id="setAccent">' +
           '<option value="en-US"' + (s.accent === "en-US" ? " selected" : "") + ">🇺🇸 미국식</option>" +
           '<option value="en-GB"' + (s.accent === "en-GB" ? " selected" : "") + ">🇬🇧 영국식</option>" +
@@ -1613,35 +1670,44 @@
         "</select></div>" +
         '<div class="field"><label>목소리</label><select id="setVoice">' + voiceOpts + "</select></div>" +
         '<div class="field"><label>말하기 속도: <span id="rateVal">' + s.rate.toFixed(1) + '</span>x</label><input type="range" id="setRate" min="0.5" max="1.3" step="0.1" value="' + s.rate + '"></div>' +
-        '<div class="btn-row" style="margin-bottom:10px"><button class="btn secondary" id="testVoice">🔊 들어 보기</button></div>' +
-        '<div class="btn-row"><button class="btn ghost" id="resetProgress">기록 초기화</button><button class="btn" id="closeSettings">닫기</button></div>' +
-        '<div class="btn-row" style="margin-top:10px"><button class="btn ghost" id="forceUpdate">🔄 최신 버전으로 새로고침</button></div>' +
-        '<p class="small muted" style="margin-top:10px">앱 버전 ' + APP_VERSION + " · " +
+        '<button class="btn secondary block" id="testVoice">🔊 들어 보기</button>' +
+      "</div>" +
+      '<div class="section-title">🛠️ 앱</div>' +
+      '<div class="card">' +
+        '<button class="btn ghost block" id="forceUpdate">🔄 최신 버전으로 새로고침</button>' +
+        '<button class="btn ghost block" id="resetProgress" style="margin-top:8px">학습 기록 초기화</button>' +
+        '<p class="small muted" style="margin:12px 0 0">앱 버전 ' + APP_VERSION + " · " +
           (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches ? "홈 화면 앱으로 실행 중" : "브라우저에서 실행 중") + "</p>" +
-        '<p class="small muted" style="margin-top:14px">💡 홈 화면에 추가하면 앱처럼 쓸 수 있어요.<br>아이폰: 사파리 공유 버튼 → "홈 화면에 추가"<br>안드로이드: 크롬 메뉴 → "홈 화면에 추가"</p>' +
-      "</div>",
-      (root) => {
-        root.querySelector("#setAccent").onchange = (e) => { s.accent = e.target.value; s.voiceURI = ""; save(); openSettings(); };
-        root.querySelector("#setDeparture").onchange = (e) => { s.departure = e.target.value; save(); route(); toast(departureLabel() || "출발일을 지웠어요."); };
-        root.querySelector("#setVoice").onchange = (e) => { s.voiceURI = e.target.value; save(); };
-        root.querySelector("#setRate").oninput = (e) => { s.rate = parseFloat(e.target.value); root.querySelector("#rateVal").textContent = s.rate.toFixed(1); save(); };
-        root.querySelector("#testVoice").onclick = (e) => speakButton(e.currentTarget, "Hello! Welcome to Finland. Let's practice English together.");
-        root.querySelector("#resetProgress").onclick = () => {
-          if (confirm("모든 학습 기록을 지울까요?")) { state.progress = {}; save(); closeModal(); route(); toast("기록을 초기화했어요."); }
-        };
-        root.querySelector("#closeSettings").onclick = closeModal;
-        root.querySelector("#openSheet").onclick = openScheduleSetup;
-        root.querySelector("#forceUpdate").onclick = () => {
-          // 저장해 둔 앱 파일을 지우고 서버에서 새로 받아요. (학습 기록은 그대로)
-          const jobs = [];
-          if (window.caches) jobs.push(caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))));
-          if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then((rs) => Promise.all(rs.map((r) => r.unregister()))));
-          Promise.all(jobs).catch(() => {}).then(() => location.replace(location.pathname + "?v=" + Date.now() + "#/"));
-        };
-      }
+        '<p class="small muted" style="margin:10px 0 0">💡 홈 화면에 추가하면 앱처럼 쓸 수 있어요.<br>아이폰: 사파리 공유 버튼 → "홈 화면에 추가"<br>안드로이드: 크롬 메뉴 → "홈 화면에 추가"</p>' +
+      "</div>"
     );
   }
-  document.getElementById("settingsBtn").onclick = openSettings;
+  function bindSettings(root) {
+    const s = state.settings;
+    root.querySelector("#setAccent").onchange = (e) => { s.accent = e.target.value; s.voiceURI = ""; save(); renderSettings(); };
+    root.querySelector("#setDeparture").onchange = (e) => { s.departure = e.target.value; save(); toast(departureLabel() || "출발일을 지웠어요."); };
+    root.querySelector("#setVoice").onchange = (e) => { s.voiceURI = e.target.value; save(); };
+    root.querySelector("#setRate").oninput = (e) => { s.rate = parseFloat(e.target.value); root.querySelector("#rateVal").textContent = s.rate.toFixed(1); save(); };
+    root.querySelector("#testVoice").onclick = (e) => speakButton(e.currentTarget, "Hello! Welcome to Finland. Let's practice English together.");
+    root.querySelector("#resetProgress").onclick = () => {
+      if (confirm("모든 학습 기록을 지울까요?")) { state.progress = {}; save(); toast("기록을 초기화했어요."); }
+    };
+    root.querySelector("#openSheet").onclick = openScheduleSetup;
+    root.querySelector("#forceUpdate").onclick = () => {
+      // 저장해 둔 앱 파일을 지우고 서버에서 새로 받아요. (학습 기록은 그대로)
+      const jobs = [];
+      if (window.caches) jobs.push(caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))));
+      if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then((rs) => Promise.all(rs.map((r) => r.unregister()))));
+      Promise.all(jobs).catch(() => {}).then(() => location.replace(location.pathname + "?v=" + Date.now() + "#/"));
+    };
+  }
+  function renderSettings() {
+    setHeader("설정", null);
+    setTab("settings");
+    view.innerHTML = settingsHtml();
+    bindSettings(view);
+  }
+  updateTabLinks();
 
   // ---------- 라우터 ----------
   function route() {
@@ -1660,6 +1726,8 @@
     else if (a === "news") renderNewsHome();
     else if (a === "places") renderPlaces(b);
     else if (a === "schedule") renderSchedule(b);
+    else if (a === "info") renderInfo();
+    else if (a === "settings") renderSettings();
     else renderHome();
     window.scrollTo(0, 0);
   }

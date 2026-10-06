@@ -3,5 +3,5 @@
 //   (시트 공유 설정: "링크가 있는 모든 사용자 - 뷰어")
 //   각자 앱의 ⚙︎ 설정에서 다른 시트 링크를 넣으면 그 기기에서는 그 시트를 써요.
 window.APP_CONFIG = {
-  scheduleSheetUrl: ""
+  scheduleSheetUrl: "https://docs.google.com/spreadsheets/d/1ynYB02RCAzhebXx_aCAX6KHtirYU_qvrILzftQ-9tTI/edit?gid=0#gid=0"
 };
