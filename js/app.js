@@ -368,6 +368,17 @@
   function esc(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
+  // 국기: 윈도우 PC 등 국기 이모지를 못 그리는 기기가 있어서 그림(SVG)으로 바꿔 보여 줍니다.
+  const FLAG_SVG = {
+    "🇫🇮": '<svg viewBox="0 0 18 11"><rect width="18" height="11" fill="#fff"/><rect x="5" width="3" height="11" fill="#002f6c"/><rect y="4" width="18" height="3" fill="#002f6c"/></svg>',
+    "🇨🇿": '<svg viewBox="0 0 6 4"><rect width="6" height="2" fill="#fff"/><rect y="2" width="6" height="2" fill="#d7141a"/><path d="M0 0L3 2L0 4z" fill="#11457e"/></svg>',
+    "🇰🇷": '<svg viewBox="0 0 36 24"><rect width="36" height="24" fill="#fff"/><g transform="rotate(-33.69 18 12)"><path d="M12 12a6 6 0 0 1 12 0z" fill="#cd2e3a"/><path d="M12 12a6 6 0 0 0 12 0z" fill="#0047a0"/><circle cx="15" cy="12" r="3" fill="#cd2e3a"/><circle cx="21" cy="12" r="3" fill="#0047a0"/></g>' +
+      '<g fill="#000"><g transform="rotate(-33.69 18 12)"><rect x="6" y="9" width="1" height="6"/><rect x="7.5" y="9" width="1" height="6"/><rect x="9" y="9" width="1" height="6"/><rect x="26" y="9" width="1" height="6"/><rect x="27.5" y="9" width="1" height="6"/><rect x="29" y="9" width="1" height="6"/></g>' +
+      '<g transform="rotate(33.69 18 12)"><rect x="6" y="9" width="1" height="6"/><rect x="7.5" y="9" width="1" height="6"/><rect x="9" y="9" width="1" height="6"/><rect x="26" y="9" width="1" height="6"/><rect x="27.5" y="9" width="1" height="6"/><rect x="29" y="9" width="1" height="6"/></g></g></svg>'
+  };
+  function flagify(html) {
+    return html.replace(/🇫🇮|🇨🇿|🇰🇷/g, (f) => '<span class="flag">' + FLAG_SVG[f] + "</span>");
+  }
   function h(html) {
     const t = document.createElement("template");
     t.innerHTML = html.trim();
@@ -468,7 +479,7 @@
     );
   }
   function confetti() {
-    const items = ["🎉", "⭐", "💙", "🇫🇮", "✨", "🌟"];
+    const items = ["🎉", "⭐", "💙", "🎊", "✨", "🌟"];
     for (let i = 0; i < 18; i++) {
       const s = document.createElement("span");
       s.className = "confetti";
@@ -575,6 +586,9 @@
     return n.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
   function ratesCardHtml(r) {
+    return flagify(ratesCardHtmlRaw(r));
+  }
+  function ratesCardHtmlRaw(r) {
     const targets = state.settings.targets || {};
     if (!r) {
       return '<div class="small muted">환율을 불러오는 중이에요…</div>';
@@ -720,6 +734,9 @@
     return (iso || "").slice(11, 16);
   }
   function weatherCardHtml(w) {
+    return flagify(weatherCardHtmlRaw(w));
+  }
+  function weatherCardHtmlRaw(w) {
     if (!w) return '<div class="small muted">날씨를 불러오는 중이에요…</div>';
     return w.cities.map((c) => {
       const city = WEATHER_CITIES.find((x) => x.id === c.id);
@@ -802,7 +819,7 @@
     view.appendChild(h(
       '<section class="hero">' +
         '<div class="date">' + (d.getMonth() + 1) + "월 " + d.getDate() + "일 " + days[d.getDay()] + "요일</div>" +
-        (dday ? '<div class="dday">' + esc(dday) + "</div>" : "") +
+        (dday ? '<div class="dday">' + flagify(esc(dday)) + "</div>" : "") +
         "<h2>" + (pct === 100 ? "오늘 목표 완료! 최고예요 🎉" : "오늘도 꿈틀꿈틀, 핀란드에 한 걸음!") + "</h2>" +
         '<div class="stats">' +
           '<div class="stat"><b>' + streak() + "일</b>연속 학습</div>" +
@@ -1168,7 +1185,9 @@
   }
   function renderPlaces(countryId, onlyFav) {
     const countries = window.PLACE_COUNTRIES;
-    const country = countries.find((c) => c.id === countryId) || countries[0];
+    const country = countries.find((c) => c.id === (countryId || state.settings.lastCountry)) || countries[0];
+    state.settings.lastCountry = country.id;
+    save();
     setHeader("추천 관광지", null);
     setTab("places");
     const favs = state.favorites;
@@ -1206,11 +1225,11 @@
     });
     if (!shown) html += '<div class="card muted">아직 고른 곳이 없어요. ♡를 눌러 가고 싶은 곳을 담아 보세요.</div>';
     html += '<p class="small muted">※ 운영 시간과 요금은 계절마다 바뀌어요. 방문 전에 공식 홈페이지에서 꼭 확인하세요.</p>';
-    view.innerHTML = html;
+    view.innerHTML = flagify(html);
 
     const all = country.regions.flatMap((r) => r.places);
     view.querySelectorAll("[data-country]").forEach((b) => {
-      b.onclick = () => navigate("#/places/" + b.dataset.country);
+      b.onclick = () => { renderPlaces(b.dataset.country, false); window.scrollTo(0, 0); };
     });
     view.querySelector('[data-act="fav"]').onclick = () => renderPlaces(country.id, !onlyFav);
     view.querySelectorAll("[data-fav]").forEach((b) => {
