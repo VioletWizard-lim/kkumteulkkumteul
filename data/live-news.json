@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-04T23:42:40.586Z",
+  "updated": "2026-10-06T01:36:29.277Z",
   "items": [
+    {
+      "id": "live-5076bb81d5",
+      "addedDate": "2026-10-06",
+      "archived": false,
+      "published": "2026-10-05T12:14:04.000Z",
+      "source": "Yle News",
+      "url": "https://yle.fi/a/74-20249883?origin=rss",
+      "title": "Parents in Finland turn to AI for free school pictures",
+      "titleKo": "핀란드의 부모들은 무료 학교 사진을 위해 AI를 사용합니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "일부 부모는 AI 도구를 사용하여 자녀의 학교 사진에서 워터마크를 제거하고 있습니다."
+      ],
+      "summaryEn": [
+        "Some parents are using AI tools to strip watermarks from their kids' school photos."
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-011438d35c",
       "addedDate": "2026-10-05",
