@@ -1,6 +1,7 @@
 // 오프라인에서도 앱을 열 수 있도록 파일을 캐시합니다.
-// 앱 파일을 수정하면 CACHE 버전을 올려 주세요.
-const CACHE = "kkumteul-v20";
+// CACHE 이름은 배포할 때마다 GitHub Actions 가 새 버전으로 바꿔 넣어요 (.github/workflows/pages.yml).
+// 이 파일 내용이 바뀌면 휴대폰이 새 버전을 설치하고, 앱이 한 번 새로고침돼요.
+const CACHE = "kkumteul-__APP_VERSION__";
 const FILES = [
   "./",
   "index.html",
@@ -29,7 +30,12 @@ const FILES = [
 ];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
+  // cache: "reload" → 휴대폰에 남아 있는 예전 파일이 아니라 서버의 최신 파일로 저장해요.
+  e.waitUntil(
+    caches.open(CACHE)
+      .then((c) => c.addAll(FILES.map((f) => new Request(f, { cache: "reload" }))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener("activate", (e) => {

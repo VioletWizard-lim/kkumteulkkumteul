@@ -2,7 +2,9 @@
 (function () {
   "use strict";
 
-  const APP_VERSION = "2026.10.04-3";
+  // 배포할 때 GitHub Actions 가 날짜·시각으로 바꿔 넣어요 (.github/workflows/pages.yml)
+  const APP_VERSION_RAW = "__APP_VERSION__";
+  const APP_VERSION = APP_VERSION_RAW.indexOf("__") === 0 ? "개발판" : APP_VERSION_RAW;
 
   // ---------- 저장소 ----------
   const STORE_KEY = "kkumteul.v1";
@@ -1839,9 +1841,24 @@
 
   // ---------- 오프라인 지원 ----------
   if ("serviceWorker" in navigator && location.protocol === "https:") {
+    // 새 버전이 설치되면 화면을 한 번 다시 불러와서 바로 최신 버전을 보여 줘요.
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloaded = false;
+    const loadedAt = Date.now();
+    let pendingReload = false;
+    const doReload = () => { if (!reloaded) { reloaded = true; location.reload(); } };
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!hadController) return;
+      // 앱을 막 연 참이면 바로, 공부하던 중이면 다음에 앱으로 돌아올 때 새로고침해요.
+      if (Date.now() - loadedAt < 15000 || document.hidden) doReload();
+      else pendingReload = true;
+    });
+    document.addEventListener("visibilitychange", () => { if (pendingReload && !document.hidden) doReload(); });
     navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((reg) => {
-      // 앱으로 돌아올 때마다 새 버전이 있는지 확인
+      reg.update().catch(() => {});
+      // 앱으로 돌아올 때와 30분마다 새 버전이 있는지 확인
       document.addEventListener("visibilitychange", () => { if (!document.hidden) reg.update().catch(() => {}); });
+      setInterval(() => reg.update().catch(() => {}), 30 * 60000);
     }).catch(() => {});
   }
 })();

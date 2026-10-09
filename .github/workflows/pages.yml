@@ -29,6 +29,11 @@ jobs:
         with:
           ref: main
       - uses: actions/configure-pages@v5
+      - name: Stamp app version
+        run: |
+          VERSION="$(TZ=Asia/Seoul date +%Y.%m.%d-%H%M)"
+          sed -i "s/__APP_VERSION__/${VERSION}/g" js/app.js sw.js
+          echo "App version: ${VERSION}"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .
