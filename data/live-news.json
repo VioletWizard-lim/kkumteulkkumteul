@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-08T00:35:07.125Z",
+  "updated": "2026-10-09T00:50:27.330Z",
   "items": [
+    {
+      "id": "live-3fb1f24cb9",
+      "addedDate": "2026-10-09",
+      "archived": false,
+      "published": "2026-10-08T10:37:07.000Z",
+      "source": "Yle News",
+      "url": "https://yle.fi/a/74-20250494?origin=rss",
+      "title": "Helsinki will not ban face coverings in schools, but tightens guidelines",
+      "titleKo": "헬싱키는 학교에서 안면 가리개 착용을 금지하지 않지만 지침을 강화할 예정입니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "시의회는 수요일 회의에서 안면 가리개 전면 금지에 반대하는 투표를 했으나 학교에 대한 새로운 안전 지침이 발표될 예정이다."
+      ],
+      "summaryEn": [
+        "The city council voted against an outright ban on face coverings at a meeting on Wednesday, but a new safety guideline for schools will be issued."
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-b1c57ea718",
       "addedDate": "2026-10-08",
