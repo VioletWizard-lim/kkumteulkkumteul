@@ -924,7 +924,8 @@
     setTab("words");
     const words = todaysWords(session);
     let i = 0;
-    let revealed = false;
+    const showMeaning = () => !!state.settings.showMeaning;
+    let revealed = showMeaning();
 
     function draw() {
       const w = words[i];
@@ -955,10 +956,10 @@
       $("mic").onclick = (e) => listenAndCheck(w[0], e.currentTarget, view.querySelector("#micResult"));
       const rv = $("reveal");
       if (rv) rv.onclick = () => { revealed = true; draw(); };
-      $("prev").onclick = () => { if (i > 0) { i--; revealed = false; stopSpeaking(); draw(); } };
+      $("prev").onclick = () => { if (i > 0) { i--; revealed = showMeaning(); stopSpeaking(); draw(); } };
       $("next").onclick = () => {
         stopSpeaking();
-        if (!last) { i++; revealed = false; draw(); return; }
+        if (!last) { i++; revealed = showMeaning(); draw(); return; }
         todayProgress().words[session] = true;
         save();
         showPraise(b.label + " 표현 10개 완료!", () => goBack("#/words"));
@@ -1680,6 +1681,11 @@
         '<div class="field"><label>📅 일정 구글 시트</label><button class="btn ghost block" id="openSheet">' + (scheduleSheetUrl() ? "✅ 연결됨 · 바꾸기" : "연결하기") + "</button></div>" +
         '<div class="field" style="margin-bottom:0"><label>✈️ 핀란드 출발일</label><input type="date" id="setDeparture" value="' + esc(s.departure || "") + '"></div>' +
       "</div>" +
+      '<div class="section-title">📚 단어 공부</div>' +
+      '<div class="card">' +
+        '<label class="switch-row"><span class="grow"><b>단어 뜻 바로 보기</b><br><span class="small muted">끄면 카드에서 "뜻 보기"를 눌러야 뜻이 나와요 (스스로 떠올려 보기)</span></span>' +
+        '<input type="checkbox" id="setShowMeaning"' + (s.showMeaning ? " checked" : "") + '><span class="switch"></span></label>' +
+      "</div>" +
       '<div class="section-title">🔊 발음</div>' +
       '<div class="card">' +
         '<div class="field"><label>발음 (억양)</label><select id="setAccent">' +
@@ -1706,6 +1712,11 @@
     root.querySelector("#setAccent").onchange = (e) => { s.accent = e.target.value; s.voiceURI = ""; save(); renderSettings(); };
     root.querySelector("#setDeparture").onchange = (e) => { s.departure = e.target.value; save(); toast(departureLabel() || "출발일을 지웠어요."); };
     root.querySelector("#setVoice").onchange = (e) => { s.voiceURI = e.target.value; save(); };
+    root.querySelector("#setShowMeaning").onchange = (e) => {
+      s.showMeaning = e.target.checked;
+      save();
+      toast(s.showMeaning ? "단어 카드에 뜻이 바로 보여요" : "'뜻 보기'를 눌러야 뜻이 보여요");
+    };
     root.querySelector("#setRate").oninput = (e) => { s.rate = parseFloat(e.target.value); root.querySelector("#rateVal").textContent = s.rate.toFixed(1); save(); };
     root.querySelector("#testVoice").onclick = (e) => speakButton(e.currentTarget, "Hello! Welcome to Finland. Let's practice English together.");
     root.querySelector("#resetProgress").onclick = () => {
