@@ -292,3 +292,41 @@ main { flex: 1; padding: 4px 16px calc(var(--tabbar-h) + env(safe-area-inset-bot
 .switch-row input:focus-visible + .switch { outline: 2px solid var(--primary); outline-offset: 2px; }
 
 .ex-ko { margin-top: 4px; }
+
+/* 테스트 */
+.test-card.locked { opacity: .85; }
+.test-q { min-height: 180px; }
+.options { display: grid; gap: 8px; margin: 12px 0; }
+.option { border: 2px solid var(--line); background: var(--surface); border-radius: 14px; padding: 14px; font-size: 16px; font-weight: 700; text-align: left; color: var(--text); }
+.option.correct { border-color: var(--success); background: var(--success-soft); }
+.option.wrong { border-color: #e5484d; background: #fde8e8; }
+:root[data-theme="dark"] .option.wrong { background: #3a1d1f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .option.wrong { background: #3a1d1f; } }
+.option:disabled { cursor: default; }
+.test-fb.ok { border-left: 5px solid var(--success); }
+.test-fb.no { border-left: 5px solid #e5484d; }
+
+/* 스탬프판 */
+.stamp-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 12px 0 16px; }
+@media (min-width: 420px) { .stamp-board { grid-template-columns: repeat(6, 1fr); } }
+.stamp { aspect-ratio: 1; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; transform: rotate(-12deg); }
+.stamp.attend { border: 3px double #1f9d6b; color: #1f9d6b; background: rgba(31,157,107,.10); }
+.stamp.study { border: 3px double #2f6fdf; color: #2f6fdf; background: rgba(47,111,223,.10); transform: rotate(9deg); }
+.stamp.empty { border: 2px dashed var(--line); color: var(--line); transform: none; font-size: 12px; }
+.stamp-label { font-size: 14px; line-height: 1.1; }
+.stamp-date { font-size: 10px; opacity: .85; }
+.stamp.fresh { animation: stamp-in .5s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes stamp-in { from { transform: scale(2.4) rotate(-30deg); opacity: 0; } }
+.stamp-pop { width: 110px; margin: 0 auto 12px; }
+.stamp-pop .stamp-label { font-size: 26px; }
+.stamp-pop .stamp-date { font-size: 14px; }
+.stamp-mini { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 800; flex: none; }
+.stamp-mini.attend { border: 3px double #1f9d6b; color: #1f9d6b; transform: rotate(-10deg); }
+.stamp-mini.study { border: 3px double #2f6fdf; color: #2f6fdf; transform: rotate(8deg); }
+.stamp-mini.empty { border: 2px dashed var(--line); color: var(--muted); transform: none; opacity: .7; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: 0; }
+.dot.attend { background: #1f9d6b; } .dot.study { background: #2f6fdf; }
+.medal-count { font-size: 30px; } .medal-count b { font-size: 20px; margin-left: 2px; }
+.medals { display: flex; flex-wrap: wrap; gap: 14px; }
+.medal { text-align: center; } .medal-icon { font-size: 40px; }
+.subnav a { padding: 9px 6px; font-size: 13px; }

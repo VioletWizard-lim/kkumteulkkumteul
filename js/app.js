@@ -402,7 +402,7 @@
   }
   // 하단 탭: 홈 · 영어 공부 · 여행 · 설정. 영어 공부와 여행은 위쪽 작은 메뉴(서브 탭)로 다시 나뉘어요.
   const TAB_GROUPS = {
-    study: [["words", "📚 오늘 단어"], ["travel", "🗣️ 여행회화"], ["news", "📰 교육뉴스"]],
+    study: [["words", "📚 단어"], ["travel", "🗣️ 회화"], ["news", "📰 뉴스"], ["stamps", "🗂️ 스탬프"]],
     trip: [["schedule", "📅 일정"], ["places", "🗺️ 관광지"], ["info", "💱 환율·날씨"]]
   };
   function groupOf(section) {
@@ -830,6 +830,8 @@
         "</div>" +
         '<div class="progress"><i style="width:' + pct + '%"></i></div>' +
       "</section>" +
+      '<div class="section-title">🗂️ 스탬프판</div>' +
+      stampSummaryHtml() +
       '<div class="section-title">📅 오늘 일정</div>' +
       '<div class="card" id="scheduleCard">' + scheduleCardHtml() + "</div>" +
       '<div class="section-title">🌤️ 지금 날씨</div>' +
@@ -838,6 +840,7 @@
       '<div class="card rates" id="ratesCard">' + ratesCardHtml(readRates()) + "</div>" +
       '<div class="section-title">📚 오늘의 영어 표현 30개</div>' +
       sessionRows +
+      testCardHtml() +
       '<div class="section-title">🧳 여행 영어 회화</div>' +
       '<a class="card card-link row" href="#/travel">' +
         '<span class="emoji-lg">🗣️</span>' +
@@ -863,6 +866,249 @@
   }
 
   // ---------- 화면: 단어 목록 ----------
+  // ---------- 스탬프판 ----------
+  // 🟢 출석 도장: 그날 앱을 처음 열면 / 🔵 공부 도장: 오늘의 테스트를 마치면
+  // 도장 100개를 모으면 메달 1개, 새 스탬프판이 시작돼요.
+  const BOARD_SIZE = 100;
+  function allStamps() {
+    const list = [];
+    Object.keys(state.progress).sort().forEach((d) => {
+      const p = state.progress[d];
+      const studied = p.words && Object.values(p.words).some(Boolean);
+      if (p.attend || studied || p.test) list.push({ date: d, type: "attend" });
+      if (p.test) list.push({ date: d, type: "study" });
+    });
+    return list;
+  }
+  function stampHtml(st, fresh) {
+    const [, m, d] = st.date.split("-").map(Number);
+    return '<div class="stamp ' + st.type + (fresh ? " fresh" : "") + '"><span class="stamp-label">' + (st.type === "study" ? "공부" : "출석") + '</span><span class="stamp-date">' + m + "/" + d + "</span></div>";
+  }
+  function stampSummaryHtml() {
+    const all = allStamps();
+    const medals = Math.floor(all.length / BOARD_SIZE);
+    const cur = all.length % BOARD_SIZE;
+    const today = dateKey();
+    const tp = state.progress[today] || {};
+    return (
+      '<a class="card card-link" href="#/stamps">' +
+        '<div class="row between"><div class="headline-sm">🗂️ 나의 스탬프판</div><span class="muted">›</span></div>' +
+        '<div class="row" style="margin:10px 0 6px;gap:14px">' +
+          '<div class="stamp-mini attend' + (tp.attend ? "" : " empty") + '">출석</div>' +
+          '<div class="stamp-mini study' + (tp.test ? "" : " empty") + '">공부</div>' +
+          '<div class="grow small muted">오늘 ' + (tp.test ? "도장 2개 다 모았어요! 🎉" : tp.attend ? "공부 도장은 테스트를 마치면 찍혀요" : "") + "</div>" +
+        "</div>" +
+        '<div class="small muted">' + (medals ? "🏅".repeat(Math.min(medals, 10)) + " 메달 " + medals + "개 · " : "") + "이번 판 " + cur + " / " + BOARD_SIZE + "</div>" +
+        '<div class="progress" style="margin-top:6px"><i style="width:' + cur + '%"></i></div>' +
+      "</a>"
+    );
+  }
+  function renderStamps(freshDate, freshType) {
+    setHeader("나의 스탬프판", null);
+    setTab("stamps");
+    const all = allStamps();
+    const medals = Math.floor(all.length / BOARD_SIZE);
+    // 방금 100개를 채웠으면 새 빈 판 대신 완성된 판을 보여 줘요.
+    const justDone = medals > 0 && all.length % BOARD_SIZE === 0;
+    const boardNo = justDone ? medals : medals + 1;
+    const start = (boardNo - 1) * BOARD_SIZE;
+    const board = all.slice(start, start + BOARD_SIZE);
+    const greens = all.filter((x) => x.type === "attend").length;
+    const blues = all.filter((x) => x.type === "study").length;
+    let cells = "";
+    for (let k = 0; k < BOARD_SIZE; k++) {
+      const st = board[k];
+      cells += st ? stampHtml(st, st.date === freshDate && st.type === freshType) : '<div class="stamp empty"><span>' + (k + 1) + "</span></div>";
+    }
+    view.innerHTML =
+      '<div class="card stamp-head">' +
+        '<div class="row between"><div><div class="headline-sm">' + boardNo + "번째 스탬프판" + (justDone ? " 완성! 🎉" : "") + "</div>" +
+        '<div class="small muted">' + board.length + " / " + BOARD_SIZE + (justDone ? " · 다음 도장부터 새 판이 시작돼요" : " · 다 채우면 메달을 받아요!") + "</div></div>" +
+        '<div class="medal-count">' + (medals ? "🏅<b>" + medals + "</b>" : "") + "</div></div>" +
+        '<div class="row small" style="gap:16px;margin-top:10px"><span><span class="dot attend"></span> 출석 ' + greens + "</span><span><span class=\"dot study\"></span> 공부 " + blues + "</span></div>" +
+      "</div>" +
+      '<div class="stamp-board">' + cells + "</div>" +
+      (medals
+        ? '<div class="section-title">🏅 나의 메달</div><div class="card medals">' +
+          Array.from({ length: medals }, (_, k) => '<div class="medal"><div class="medal-icon">🏅</div><div class="small"><b>' + (k + 1) + "번째</b><br>" + esc(all[(k + 1) * BOARD_SIZE - 1].date) + "</div></div>").join("") + "</div>"
+        : "") +
+      '<p class="small muted">🟢 출석 도장: 그날 앱을 처음 열면 찍혀요<br>🔵 공부 도장: 아침·점심·저녁 학습을 마치고 오늘의 테스트까지 끝내면 찍혀요</p>';
+    const fresh = view.querySelector(".stamp.fresh");
+    if (fresh) setTimeout(() => fresh.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
+  }
+  // 도장을 찍고 축하 창을 보여 줘요. 100개를 채우면 메달!
+  function stampPop(type, onClose) {
+    const before = allStamps().length;
+    const total = before;
+    const medal = total > 0 && total % BOARD_SIZE === 0;
+    const today = dateKey();
+    openModal(
+      '<div class="modal">' +
+        '<div class="stamp-pop">' + stampHtml({ date: today, type: type }, true) + "</div>" +
+        "<h3>" + (type === "study" ? "🔵 공부 도장 쾅!" : "🟢 출석 도장 쾅!") + "</h3>" +
+        (medal ? '<p class="msg">🏅 도장 ' + total + "개 달성! 메달을 받았어요!</p>" : '<p class="msg-en">이번 판 ' + (total % BOARD_SIZE) + " / " + BOARD_SIZE + "</p>") +
+        '<div class="btn-row"><button class="btn ghost" data-act="board">스탬프판 보기</button><button class="btn" data-act="ok">좋아요!</button></div>' +
+      "</div>",
+      (root) => {
+        root.querySelector('[data-act="ok"]').onclick = () => { closeModal(); if (onClose) onClose(); };
+        root.querySelector('[data-act="board"]').onclick = () => { closeModal(); navigate("#/stamps"); renderStamps(today, type); };
+      },
+      { dismissable: false }
+    );
+    if (medal) confetti();
+  }
+  // 오늘 처음 열었으면 출석 도장
+  function checkAttendance() {
+    const p = todayProgress();
+    if (p.attend) return;
+    p.attend = true;
+    save();
+    if (normHash(location.hash) === "#/") renderHome();
+    setTimeout(() => { if (overlay.hidden) stampPop("attend"); else toast("🟢 출석 도장이 찍혔어요!"); }, 600);
+  }
+
+  // ---------- 오늘의 테스트 (아침·점심·저녁 학습을 모두 마치면 열려요) ----------
+  function testCardHtml() {
+    const p = todayProgress();
+    const done = SESSION_KEYS.filter((k) => p.words[k]).length;
+    const t = p.test;
+    if (done < SESSION_KEYS.length) {
+      return (
+        '<div class="card test-card locked">' +
+          '<div class="row"><span class="emoji-lg">🔒</span><div class="grow"><div class="headline-sm">오늘의 테스트</div>' +
+          '<div class="small muted">아침·점심·저녁 학습을 모두 마치면 열려요 (' + done + "/3 완료)</div></div></div>" +
+          '<div class="progress" style="margin-top:10px"><i style="width:' + (done / 3) * 100 + '%"></i></div>' +
+        "</div>"
+      );
+    }
+    return (
+      '<a class="card card-link test-card" href="#/words/test">' +
+        '<div class="row"><span class="emoji-lg">' + (t ? "🏅" : "📝") + '</span><div class="grow"><div class="headline-sm">오늘의 테스트 ' +
+        (t ? '<span class="badge done">' + t.best + "/" + t.total + "점</span>" : '<span class="badge">열렸어요!</span>') + "</div>" +
+        '<div class="small muted">' + (t ? "다시 풀어서 점수를 올려 보세요" : "오늘 배운 30개 표현으로 15문제") + "</div></div>" +
+        '<span class="muted">›</span></div>' +
+      "</a>"
+    );
+  }
+  function shuffled(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function buildTest() {
+    const today = SESSION_KEYS.flatMap((k) => todaysWords(k));
+    const pool = SESSION_KEYS.flatMap((k) => window.WORD_BANKS[k].words);
+    const canListen = !!synth;
+    const types = canListen ? ["meaning", "english", "listen"] : ["meaning", "english"];
+    return shuffled(today).slice(0, 15).map((w, i) => {
+      const type = types[i % types.length];
+      // 오답 보기: 오늘 단어에서 먼저, 모자라면 전체 단어장에서
+      const others = shuffled(today.filter((x) => x !== w)).concat(shuffled(pool).slice(0, 20)).filter((x) => x[0] !== w[0] && x[1] !== w[1]);
+      const picks = [];
+      for (const o of others) {
+        if (picks.length >= 3) break;
+        const key = type === "meaning" ? o[1] : o[0];
+        if (!picks.some((p) => (type === "meaning" ? p[1] : p[0]) === key)) picks.push(o);
+      }
+      const options = shuffled([w].concat(picks)).map((o) => (type === "meaning" ? o[1] : o[0]));
+      return { type: type, word: w, options: options, answer: type === "meaning" ? w[1] : w[0] };
+    });
+  }
+  function renderTest() {
+    setHeader("오늘의 테스트", "#/words");
+    setTab("words");
+    const p = todayProgress();
+    if (SESSION_KEYS.some((k) => !p.words[k])) {
+      view.innerHTML = '<div style="margin-top:6px">' + testCardHtml() + "</div>" +
+        '<a class="btn block" href="#/words" style="display:block;text-align:center;text-decoration:none">학습하러 가기</a>';
+      return;
+    }
+    const qs = buildTest();
+    let i = 0, score = 0;
+    const wrong = [];
+    function drawQ() {
+      const q = qs[i];
+      const prompt =
+        q.type === "meaning" ? '<div class="small muted">이 표현의 뜻은?</div><p class="word">' + esc(q.word[0]) + "</p>"
+        : q.type === "english" ? '<div class="small muted">영어로 하면?</div><p class="word" style="font-size:24px">' + esc(q.word[1]) + "</p>"
+        : '<div class="small muted">잘 듣고 들린 표현을 고르세요</div><p style="margin:14px 0"><button class="speak-btn" data-act="play" style="font-size:18px;padding:12px 22px">🔊 다시 듣기</button></p>';
+      view.innerHTML =
+        '<div class="study-top"><span class="small muted">' + (i + 1) + " / " + qs.length + '</span><div class="progress"><i style="width:' + ((i + 1) / qs.length) * 100 + '%"></i></div><span class="small"><b>' + score + "</b>점</span></div>" +
+        '<div class="card flash test-q">' + prompt + "</div>" +
+        '<div class="options">' + q.options.map((o, k) => '<button class="option" data-opt="' + k + '">' + esc(o) + "</button>").join("") + "</div>" +
+        '<div id="feedback"></div>';
+      if (q.type === "listen") {
+        const play = view.querySelector('[data-act="play"]');
+        play.onclick = () => speakButton(play, q.word[0]);
+        speakButton(play, q.word[0]);
+      }
+      view.querySelectorAll("[data-opt]").forEach((btn) => {
+        btn.onclick = () => {
+          stopSpeaking();
+          const chosen = q.options[+btn.dataset.opt];
+          const ok = chosen === q.answer;
+          if (ok) score++;
+          else wrong.push(q.word);
+          view.querySelectorAll("[data-opt]").forEach((b2) => {
+            b2.disabled = true;
+            const val = q.options[+b2.dataset.opt];
+            if (val === q.answer) b2.classList.add("correct");
+            else if (b2 === btn) b2.classList.add("wrong");
+          });
+          const fb = view.querySelector("#feedback");
+          fb.innerHTML =
+            '<div class="card test-fb ' + (ok ? "ok" : "no") + '">' +
+              "<b>" + (ok ? "⭕ 정답이에요!" : "❌ 아쉬워요") + "</b>" +
+              '<div style="margin-top:6px"><b>' + esc(q.word[0]) + "</b> · " + esc(q.word[1]) + "</div>" +
+              '<div class="small muted">' + esc(q.word[2]) + "</div>" +
+            "</div>" +
+            '<button class="btn block" data-act="nextq">' + (i === qs.length - 1 ? "결과 보기" : "다음 문제 →") + "</button>";
+          if (state.settings.autoSpeak && state.settings.autoSpeak !== "off") speak(q.word[0]);
+          fb.querySelector('[data-act="nextq"]').onclick = () => {
+            stopSpeaking();
+            if (i < qs.length - 1) { i++; drawQ(); window.scrollTo(0, 0); }
+            else finish();
+          };
+        };
+      });
+    }
+    function finish() {
+      const prev = todayProgress().test;
+      const firstTime = !prev;
+      todayProgress().test = { best: Math.max(score, prev ? prev.best : 0), last: score, total: qs.length };
+      save();
+      const pct = score / qs.length;
+      const medal = pct === 1 ? "🏆" : pct >= 0.8 ? "🥇" : pct >= 0.6 ? "🥈" : "💪";
+      view.innerHTML =
+        '<div class="card" style="text-align:center;margin-top:6px">' +
+          '<div style="font-size:56px">' + medal + "</div>" +
+          '<div class="headline-sm" style="font-size:22px">' + score + " / " + qs.length + "점</div>" +
+          '<p class="muted">' + (pct === 1 ? "만점이에요! 완벽해요!" : pct >= 0.8 ? "훌륭해요! 거의 다 맞혔어요." : pct >= 0.6 ? "잘했어요! 틀린 표현만 한 번 더 볼까요?" : "괜찮아요. 복습하면 금방 늘어요!") + "</p>" +
+        "</div>" +
+        (wrong.length
+          ? '<div class="section-title">📌 다시 볼 표현 ' + wrong.length + "개</div>" +
+            '<div class="card word-list">' + wrong.map((w, k) =>
+              '<div class="item"><div class="grow"><div class="en">' + esc(w[0]) + '</div><div class="small muted">' + esc(w[1]) + '</div><div class="small">' + esc(w[2]) + "</div></div>" +
+              '<button class="speak-btn round" data-say="' + k + '" aria-label="발음 듣기">🔊</button></div>').join("") + "</div>"
+          : "") +
+        '<div class="btn-row"><button class="btn ghost" data-act="retry">🔁 다시 풀기</button><button class="btn" data-act="done">끝내기</button></div>';
+      view.querySelectorAll("[data-say]").forEach((b2) => { b2.onclick = () => speakButton(b2, wrong[+b2.dataset.say][0]); });
+      view.querySelector('[data-act="retry"]').onclick = () => renderTest();
+      view.querySelector('[data-act="done"]').onclick = () => {
+        if (pct >= 0.8) showPraise("테스트 " + score + "/" + qs.length + "점!", () => goBack("#/words"));
+        else goBack("#/words");
+      };
+      if (pct >= 0.8) confetti();
+      // 오늘 처음 테스트를 마쳤으면 파란 공부 도장!
+      if (firstTime) setTimeout(() => stampPop("study"), 700);
+    }
+    showCheer("오늘의 테스트를 시작해요 (15문제)", drawQ);
+    view.innerHTML = "";
+  }
+
   function renderWordsHome() {
     setHeader("오늘의 영어 표현", null);
     setTab("words");
@@ -872,7 +1118,8 @@
     const cycleDay = ((dayN - 1) % wordCycleLength()) + 1;
     let html = '<p class="muted small" style="margin:6px 2px 14px"><b>📅 단어 ' + dayN + "일차</b>" +
       (dayN > cycleDay ? " (" + cycleDay + "/" + wordCycleLength() + "일 복습 주기)" : " / " + wordCycleLength() + "일 동안 매일 새 표현") +
-      "<br>아침·점심·저녁 10개씩, 하루 30개! 🔊 버튼으로 원어민 발음을 듣고, 🎤로 따라 말해 보세요.</p>";
+      "<br>아침·점심·저녁 10개씩, 하루 30개! 🔊 버튼으로 원어민 발음을 듣고, 🎤로 따라 말해 보세요.</p>" +
+      testCardHtml();
     SESSION_KEYS.forEach((s) => {
       const b = window.WORD_BANKS[s];
       const words = todaysWords(s);
@@ -986,7 +1233,8 @@
         if (!last) { i++; revealed = showMeaning(); draw(); return; }
         todayProgress().words[session] = true;
         save();
-        showPraise(b.label + " 표현 10개 완료!", () => goBack("#/words"));
+        const allDone = SESSION_KEYS.every((k) => todayProgress().words[k]);
+        showPraise(b.label + " 표현 10개 완료!" + (allDone && !todayProgress().test ? " 🔓 오늘의 테스트가 열렸어요!" : ""), () => goBack("#/words"));
       };
     }
 
@@ -1788,7 +2036,8 @@
     closeModal();
     const parts = (location.hash.replace(/^#\/?/, "") || "").split("/").filter(Boolean);
     const [a, b, c] = parts;
-    if (a === "words" && b && c === "list") renderWordList(b);
+    if (a === "words" && b === "test") renderTest();
+    else if (a === "words" && b && c === "list") renderWordList(b);
     else if (a === "words" && b) renderWordStudy(b);
     else if (a === "words") renderWordsHome();
     else if (a === "travel" && b) renderTravelTopic(b);
@@ -1798,6 +2047,7 @@
     else if (a === "places") renderPlaces(b);
     else if (a === "schedule") renderSchedule(b);
     else if (a === "info") renderInfo();
+    else if (a === "stamps") renderStamps();
     else if (a === "settings") renderSettings();
     else renderHome();
     window.scrollTo(0, 0);
@@ -1860,6 +2110,7 @@
     route();
   });
   // 첫 실행: 홈이 아닌 주소로 열렸으면 아래에 홈을 깔아 두어 뒤로 가기가 홈으로 가게 합니다.
+  setTimeout(checkAttendance, 0);
   (function initHistory() {
     const start = normHash(location.hash);
     if (history.state && history.state.depth) return;
