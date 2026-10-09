@@ -290,3 +290,5 @@ main { flex: 1; padding: 4px 16px calc(var(--tabbar-h) + env(safe-area-inset-bot
 .switch-row input:checked + .switch { background: var(--primary); }
 .switch-row input:checked + .switch::after { transform: translateX(20px); }
 .switch-row input:focus-visible + .switch { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+.ex-ko { margin-top: 4px; }

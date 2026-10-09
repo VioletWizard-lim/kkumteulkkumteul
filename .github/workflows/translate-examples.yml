@@ -1,0 +1,39 @@
+name: Translate word examples
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "js/data/words*.js"
+      - "scripts/translate-examples.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: translate-examples
+  cancel-in-progress: false
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Translate new example sentences
+        run: node scripts/translate-examples.mjs
+      - name: Commit changes
+        run: |
+          if [ -z "$(git status --porcelain js/data/examples-ko.js)" ]; then
+            echo "No changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/data/examples-ko.js
+          git commit -m "예문 한국어 뜻 업데이트"
+          git pull --rebase
+          git push

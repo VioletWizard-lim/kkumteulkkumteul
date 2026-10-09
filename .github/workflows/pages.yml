@@ -5,7 +5,7 @@ on:
     branches: [main]
   # 뉴스 업데이트 커밋은 push 이벤트를 만들지 않으므로, 뉴스 작업이 끝나면 다시 배포합니다.
   workflow_run:
-    workflows: ["Update Finnish education news"]
+    workflows: ["Update Finnish education news", "Translate word examples"]
     types: [completed]
   workflow_dispatch:
 

@@ -907,7 +907,8 @@
       words.map((w, i) =>
         '<div class="item">' +
           '<div class="grow"><div class="en">' + esc(w[0]) + '</div><div class="small muted">' + esc(w[1]) + "</div>" +
-          '<div class="small">' + esc(w[2]) + "</div></div>" +
+          '<div class="small">' + esc(w[2]) + "</div>" +
+          (exampleKo(w[2]) ? '<div class="small muted ex-ko">' + esc(exampleKo(w[2])) + "</div>" : "") + "</div>" +
           '<button class="speak-btn round" data-say="' + i + '" aria-label="발음 듣기">🔊</button>' +
         "</div>"
       ).join("") +
@@ -916,6 +917,11 @@
     view.querySelectorAll("[data-say]").forEach((btn) => {
       btn.onclick = () => speakButton(btn, words[+btn.dataset.say][0]);
     });
+  }
+
+  // 예문 한국어 뜻 (js/data/examples-ko.js, GitHub Actions 가 자동 번역해 만든 파일)
+  function exampleKo(en) {
+    return (state.settings.showExampleKo && window.EXAMPLE_KO && window.EXAMPLE_KO[en]) || "";
   }
 
   // ---------- 화면: 단어 카드 연습 ----------
@@ -929,7 +935,7 @@
     const showMeaning = () => !!state.settings.showMeaning;
     let revealed = showMeaning();
 
-    function draw() {
+    function draw(noAuto) {
       const w = words[i];
       const last = i === words.length - 1;
       view.innerHTML =
@@ -942,7 +948,8 @@
             '<button class="speak-btn" data-act="mic">🎤 따라 말하기</button>' +
           "</div>" +
           '<div class="meaning">' + (revealed ? esc(w[1]) : '<button class="reveal" data-act="reveal">뜻 보기 👀</button>') + "</div>" +
-          '<div class="example"><div class="row"><div class="grow" style="text-align:left">' + esc(w[2]) + "</div>" +
+          '<div class="example"><div class="row"><div class="grow" style="text-align:left">' + esc(w[2]) +
+            (exampleKo(w[2]) ? '<div class="small muted ex-ko">' + esc(exampleKo(w[2])) + "</div>" : "") + "</div>" +
           '<button class="speak-btn round" data-act="ex" aria-label="예문 듣기">🔊</button></div></div>' +
           '<div class="mic-result" id="micResult"></div>' +
         "</div>" +
@@ -957,7 +964,22 @@
       $("ex").onclick = (e) => speakButton(e.currentTarget, w[2]);
       $("mic").onclick = (e) => listenAndCheck(w[0], e.currentTarget, view.querySelector("#micResult"));
       const rv = $("reveal");
-      if (rv) rv.onclick = () => { revealed = true; draw(); };
+      if (rv) rv.onclick = () => { revealed = true; draw(true); };
+      // 소리 자동 재생: 카드가 바뀔 때 단어(와 예문)를 읽어 줘요. (뜻 보기로 다시 그릴 때는 제외)
+      const auto = state.settings.autoSpeak || "off";
+      if (!noAuto && auto !== "off") {
+        const token = speakToken;
+        $("say").classList.add("playing");
+        speak(w[0]).then((ok) => {
+          $("say") && $("say").classList.remove("playing");
+          if (!ok || auto !== "both" || token !== speakToken) return;
+          const ex = $("ex");
+          if (ex) ex.classList.add("playing");
+          return new Promise((r) => setTimeout(r, 350)).then(() => (token === speakToken ? speak(w[2]) : null)).then(() => {
+            const e2 = $("ex"); if (e2) e2.classList.remove("playing");
+          });
+        });
+      }
       $("prev").onclick = () => { if (i > 0) { i--; revealed = showMeaning(); stopSpeaking(); draw(); } };
       $("next").onclick = () => {
         stopSpeaking();
@@ -1687,6 +1709,13 @@
       '<div class="card">' +
         '<label class="switch-row"><span class="grow"><b>단어 뜻 바로 보기</b><br><span class="small muted">끄면 카드에서 "뜻 보기"를 눌러야 뜻이 나와요 (스스로 떠올려 보기)</span></span>' +
         '<input type="checkbox" id="setShowMeaning"' + (s.showMeaning ? " checked" : "") + '><span class="switch"></span></label>' +
+        '<label class="switch-row" style="margin-top:14px"><span class="grow"><b>예문 뜻 보기</b><br><span class="small muted">예문 아래에 한국어 뜻을 함께 보여 줘요 (자동 번역)</span></span>' +
+        '<input type="checkbox" id="setShowExampleKo"' + (s.showExampleKo ? " checked" : "") + '><span class="switch"></span></label>' +
+        '<div class="field" style="margin:14px 0 0"><label>🔊 소리 자동 재생</label><select id="setAutoSpeak">' +
+          '<option value="off"' + ((s.autoSpeak || "off") === "off" ? " selected" : "") + ">끄기 (버튼을 눌러서 듣기)</option>" +
+          '<option value="word"' + (s.autoSpeak === "word" ? " selected" : "") + ">단어만 자동으로 읽기</option>" +
+          '<option value="both"' + (s.autoSpeak === "both" ? " selected" : "") + ">단어 + 예문 자동으로 읽기</option>" +
+        "</select></div>" +
       "</div>" +
       '<div class="section-title">🔊 발음</div>' +
       '<div class="card">' +
@@ -1714,6 +1743,16 @@
     root.querySelector("#setAccent").onchange = (e) => { s.accent = e.target.value; s.voiceURI = ""; save(); renderSettings(); };
     root.querySelector("#setDeparture").onchange = (e) => { s.departure = e.target.value; save(); toast(departureLabel() || "출발일을 지웠어요."); };
     root.querySelector("#setVoice").onchange = (e) => { s.voiceURI = e.target.value; save(); };
+    root.querySelector("#setShowExampleKo").onchange = (e) => {
+      s.showExampleKo = e.target.checked;
+      save();
+      toast(s.showExampleKo ? "예문 아래에 뜻이 보여요" : "예문 뜻을 숨겼어요");
+    };
+    root.querySelector("#setAutoSpeak").onchange = (e) => {
+      s.autoSpeak = e.target.value;
+      save();
+      toast(s.autoSpeak === "off" ? "버튼을 눌러서 들어요" : "카드를 넘길 때 자동으로 읽어 줘요");
+    };
     root.querySelector("#setShowMeaning").onchange = (e) => {
       s.showMeaning = e.target.checked;
       save();

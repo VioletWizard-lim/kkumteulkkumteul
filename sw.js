@@ -19,6 +19,7 @@ const FILES = [
   "js/data/words-evening-3.js",
   "js/data/words-evening-4.js",
   "js/data/words-evening-5.js",
+  "js/data/examples-ko.js",
   "js/data/travel.js",
   "js/data/news.js",
   "js/data/messages.js",
