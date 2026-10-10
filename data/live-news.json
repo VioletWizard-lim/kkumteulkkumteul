@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-10T00:23:34.172Z",
+  "updated": "2026-10-10T23:58:55.571Z",
   "items": [
+    {
+      "id": "live-234ea599b6",
+      "addedDate": "2026-10-11",
+      "archived": false,
+      "published": "2026-10-10T01:00:45.000Z",
+      "source": "Newswav",
+      "url": "https://newswav.com/article/malaysia-s-education-dilemma-we-adopt-the-method-but-not-the-ecosystem-A2610_sWKBvg",
+      "title": "Malaysia’s education dilemma: We adopt the method, but not the ecosystem",
+      "titleKo": "말레이시아의 교육 딜레마: 우리는 방법을 채택하지만 생태계는 채택하지 않습니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "말레이시아의 교육 딜레마: 우리는 방법을 채택하지만 생태계는 채택하지 않습니다."
+      ],
+      "summaryEn": [
+        "Malaysia’s education dilemma: We adopt the method, but not the ecosystem"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-548c736b8f",
       "addedDate": "2026-10-10",
