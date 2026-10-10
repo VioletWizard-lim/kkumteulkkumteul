@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-09T00:50:27.330Z",
+  "updated": "2026-10-10T00:23:34.172Z",
   "items": [
+    {
+      "id": "live-548c736b8f",
+      "addedDate": "2026-10-10",
+      "archived": false,
+      "published": "2026-10-08T18:21:23.000Z",
+      "source": "Pattaya Mail",
+      "url": "https://www.pattayamail.com/thailandnews/thailand-expands-finnish-ai-maths-trial-to-100-schools-for-full-academic-term-567663",
+      "title": "Thailand expands Finnish AI maths trial to 100 schools for full academic term",
+      "titleKo": "태국, 전체 학기 동안 핀란드 AI 수학 시험을 100개 학교로 확대",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "태국, 전체 학기 동안 핀란드 AI 수학 시험을 100개 학교로 확대"
+      ],
+      "summaryEn": [
+        "Thailand expands Finnish AI maths trial to 100 schools for full academic term"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-3fb1f24cb9",
       "addedDate": "2026-10-09",
