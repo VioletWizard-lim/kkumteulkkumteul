@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-10T23:58:55.571Z",
+  "updated": "2026-10-12T00:06:58.294Z",
   "items": [
+    {
+      "id": "live-bd5fea098a",
+      "addedDate": "2026-10-12",
+      "archived": false,
+      "published": "2026-10-08T10:08:53.000Z",
+      "source": "www.tuni.fi",
+      "url": "https://www.tuni.fi/en/tau/news-and-events/space-sector-needs-diverse-expertise-finnish-higher-education-institutions",
+      "title": "The space sector needs diverse expertise – Finnish higher education institutions offer courses that explore space as an operating environment",
+      "titleKo": "우주 부문에는 다양한 전문 지식이 필요합니다. 핀란드의 고등 교육 기관에서는 우주를 운영 환경으로 탐구하는 과정을 제공합니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "우주 부문에는 다양한 전문 지식이 필요합니다. 핀란드의 고등 교육 기관에서는 우주를 운영 환경으로 탐구하는 과정을 제공합니다."
+      ],
+      "summaryEn": [
+        "The space sector needs diverse expertise – Finnish higher education institutions offer courses that explore space as an operating environment"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-234ea599b6",
       "addedDate": "2026-10-11",
