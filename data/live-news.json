@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-12T00:06:58.294Z",
+  "updated": "2026-10-13T02:19:17.709Z",
   "items": [
+    {
+      "id": "live-413c8235f7",
+      "addedDate": "2026-10-13",
+      "archived": false,
+      "published": "2026-10-12T05:45:31.000Z",
+      "source": "Yle News",
+      "url": "https://yle.fi/a/74-20250971?origin=rss",
+      "title": "Finnish schools see start of autumn breaks",
+      "titleKo": "핀란드 학교에서는 가을 방학이 시작됩니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "가을 반기 휴가가 엇갈려 일부 지역에서는 다음 주까지 휴가가 시작되지 않습니다."
+      ],
+      "summaryEn": [
+        "Autumn half-term holidays are staggered so that in some parts of the country, the breaks don't begin until next week."
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-bd5fea098a",
       "addedDate": "2026-10-12",
