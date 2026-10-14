@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-14T00:02:10.522Z",
+  "updated": "2026-10-14T23:32:49.447Z",
   "items": [
+    {
+      "id": "live-6f8ab6f0d0",
+      "addedDate": "2026-10-15",
+      "archived": false,
+      "published": "2026-10-14T13:18:17.000Z",
+      "source": "Yle News",
+      "url": "https://yle.fi/a/74-20251499?origin=rss",
+      "title": "Finnish cities pushing for mandatory school attendance law",
+      "titleKo": "의무학교 출석법을 추진하는 핀란드 도시들",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "핀란드에서는 총 약 1,000명의 어린이가 홈스쿨링을 하고 있으며, 많은 어린이가 건강이나 복지상의 이유로 홈스쿨링을 선택하고 있습니다."
+      ],
+      "summaryEn": [
+        "A total of around 1,000 children in Finland are home-schooled, with many choosing the option for health or wellbeing reasons."
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-3264a47807",
       "addedDate": "2026-10-14",
