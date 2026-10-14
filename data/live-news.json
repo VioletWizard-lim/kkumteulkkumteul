@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-13T02:19:17.709Z",
+  "updated": "2026-10-14T00:02:10.522Z",
   "items": [
+    {
+      "id": "live-3264a47807",
+      "addedDate": "2026-10-14",
+      "archived": false,
+      "published": "2026-10-13T22:22:07.000Z",
+      "source": "Google News",
+      "url": "https://www.sandiegouniontribune.com/2026/10/13/qa-meet-uday-sinha-candidate-for-santee-school-district-trustee-in-area-5/",
+      "title": "Q&A: Meet Uday Sinha, candidate for Santee School District trustee in Area 5 - San Diego Union-Tribune",
+      "titleKo": "Q&A: 지역 5의 Santee 교육구 이사 후보인 Uday Sinha를 만나보세요 - San Diego Union-Tribune",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "Q&A: Area 5 San Diego Union-Tribune의 Santee 교육구 이사 후보인 Uday Sinha를 만나보세요."
+      ],
+      "summaryEn": [
+        "Q&A: Meet Uday Sinha, candidate for Santee School District trustee in Area 5 San Diego Union-Tribune"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-413c8235f7",
       "addedDate": "2026-10-13",
