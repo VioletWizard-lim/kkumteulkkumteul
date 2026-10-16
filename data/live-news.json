@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-14T23:32:49.447Z",
+  "updated": "2026-10-16T23:08:35.008Z",
   "items": [
+    {
+      "id": "live-65c6bf7b80",
+      "addedDate": "2026-10-17",
+      "archived": false,
+      "published": "2026-10-16T07:43:31.000Z",
+      "source": "Rauman kaupunki",
+      "url": "https://www.rauma.fi/en/blog/new-university-of-helsinki-masters-programme-brings-students-to-satakunta-for-their-first-field-study-period/",
+      "title": "New University of Helsinki Master’s Programme Brings Students to Satakunta for Their First Field Study Period",
+      "titleKo": "새로운 헬싱키 대학교 석사 프로그램으로 학생들이 첫 현장 학습 기간을 사타쿤타로 데려옵니다",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "새로운 헬싱키 대학교 석사 프로그램으로 학생들이 첫 현장 학습 기간을 사타쿤타로 데려옵니다"
+      ],
+      "summaryEn": [
+        "New University of Helsinki Master’s Programme Brings Students to Satakunta for Their First Field Study Period"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-6f8ab6f0d0",
       "addedDate": "2026-10-15",
