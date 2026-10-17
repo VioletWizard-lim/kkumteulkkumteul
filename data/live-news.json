@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-16T23:08:35.008Z",
+  "updated": "2026-10-17T22:46:35.421Z",
   "items": [
+    {
+      "id": "live-152aef16db",
+      "addedDate": "2026-10-18",
+      "archived": false,
+      "published": "2026-10-17T10:16:56.000Z",
+      "source": "Πρώτη Έκδοση Δωδεκανήσου",
+      "url": "https://protiekdosi.news/finland-has-an-education-system-the-other-country-should-learn-from/",
+      "title": "Finland Has An Education System The Other Country Should Learn From",
+      "titleKo": "핀란드에는 다른 나라가 배워야 할 교육 시스템이 있습니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "핀란드에는 다른 나라가 배워야 할 교육 시스템이 있습니다."
+      ],
+      "summaryEn": [
+        "Finland Has An Education System The Other Country Should Learn From"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-65c6bf7b80",
       "addedDate": "2026-10-17",
