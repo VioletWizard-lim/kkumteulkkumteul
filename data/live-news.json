@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-17T22:46:35.421Z",
+  "updated": "2026-10-18T22:40:52.376Z",
   "items": [
+    {
+      "id": "live-8bc658d915",
+      "addedDate": "2026-10-19",
+      "archived": false,
+      "published": "2026-10-16T09:36:50.000Z",
+      "source": "Vietnam.vn",
+      "url": "https://www.vietnam.vn/en/sinh-vien-quoc-te-va-nhung-trai-nghiem-lam-nen-mot-hoc-ky-dang-nho",
+      "title": "International students and their experiences make for a memorable semester.",
+      "titleKo": "유학생들과 그들의 경험은 기억에 남는 학기를 만듭니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "유학생들과 그들의 경험은 기억에 남는 학기를 만듭니다."
+      ],
+      "summaryEn": [
+        "International students and their experiences make for a memorable semester."
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-152aef16db",
       "addedDate": "2026-10-18",
