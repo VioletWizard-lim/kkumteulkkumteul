@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-18T22:40:52.376Z",
+  "updated": "2026-10-20T00:02:49.298Z",
   "items": [
+    {
+      "id": "live-f74abc72b3",
+      "addedDate": "2026-10-20",
+      "archived": false,
+      "published": "2026-10-19T14:07:01.000Z",
+      "source": "Youth Incorporated Magazine",
+      "url": "https://youthincmag.com/australia-tightens-student-visa-rules-what-does-it-mean-for-indian-students",
+      "title": "Australia Tightens Student Visa Rules: What Does It Mean for Indian Students?",
+      "titleKo": "호주, 학생 비자 규정 강화: 인도 학생들에게 어떤 의미가 있나요?",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "호주, 학생 비자 규정 강화: 인도 학생들에게 어떤 의미가 있나요?"
+      ],
+      "summaryEn": [
+        "Australia Tightens Student Visa Rules: What Does It Mean for Indian Students?"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-8bc658d915",
       "addedDate": "2026-10-19",
