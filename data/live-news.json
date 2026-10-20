@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-20T00:02:49.298Z",
+  "updated": "2026-10-20T23:32:34.620Z",
   "items": [
+    {
+      "id": "live-b0b0bd29c5",
+      "addedDate": "2026-10-21",
+      "archived": false,
+      "published": "2026-10-20T09:07:47.000Z",
+      "source": "Yle News",
+      "url": "https://yle.fi/a/74-20252326?origin=rss",
+      "title": "School camp fundraising: voluntary or expected? Tell us what you think!",
+      "titleKo": "학교 캠프 기금 모금: 자발적인가요 아니면 예상인가요? 당신의 생각을 알려주세요!",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "핀란드에서는 학교가 무료이지만 장기간의 하룻밤 여행을 위한 기금 모금은 회색지대처럼 느껴질 수 있습니다."
+      ],
+      "summaryEn": [
+        "School is free in Finland, but fundraising for long overnight trips can feel like a grey area."
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-f74abc72b3",
       "addedDate": "2026-10-20",
