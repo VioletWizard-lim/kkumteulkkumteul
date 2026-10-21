@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-20T23:32:34.620Z",
+  "updated": "2026-10-21T23:48:35.706Z",
   "items": [
+    {
+      "id": "live-489eef4c1c",
+      "addedDate": "2026-10-22",
+      "archived": false,
+      "published": "2026-10-21T09:28:55.000Z",
+      "source": "www.tuni.fi",
+      "url": "https://www.tuni.fi/en/tau/news-and-events/first-graduate-doctoral-education-pilot-lauri-ryyppo-works-advance-cancer",
+      "title": "First graduate of doctoral education pilot Lauri Ryyppö works to advance cancer diagnostics",
+      "titleKo": "박사 과정 파일럿 Lauri Ryyppö의 첫 졸업생, 암 진단 발전을 위해 노력",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "박사 과정 파일럿 Lauri Ryyppö의 첫 졸업생, 암 진단 발전을 위해 노력"
+      ],
+      "summaryEn": [
+        "First graduate of doctoral education pilot Lauri Ryyppö works to advance cancer diagnostics"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-b0b0bd29c5",
       "addedDate": "2026-10-21",
