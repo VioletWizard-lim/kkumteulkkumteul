@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-21T23:48:35.706Z",
+  "updated": "2026-10-22T23:46:51.879Z",
   "items": [
+    {
+      "id": "live-ae8f4f6534",
+      "addedDate": "2026-10-23",
+      "archived": false,
+      "published": "2026-10-22T13:06:28.000Z",
+      "source": "Opetushallitus",
+      "url": "https://www.oph.fi/en/news/2026/all-hungarian-higher-education-institutions-and-organisations-have-full-access-erasmus",
+      "title": "All Hungarian higher education institutions and organisations have full access to Erasmus+ once again",
+      "titleKo": "모든 헝가리 고등 교육 기관 및 조직은 다시 한 번 Erasmus+에 대한 전체 액세스 권한을 갖습니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "모든 헝가리 고등 교육 기관 및 조직은 다시 한 번 Erasmus+에 대한 전체 액세스 권한을 갖습니다."
+      ],
+      "summaryEn": [
+        "All Hungarian higher education institutions and organisations have full access to Erasmus+ once again"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-489eef4c1c",
       "addedDate": "2026-10-22",
