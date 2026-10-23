@@ -789,6 +789,15 @@
   setInterval(refreshHomeData, 5 * 60000);
   document.addEventListener("visibilitychange", refreshHomeData);
 
+  // 홈 화면 바로가기 버튼 (js/config.js 의 quickLinks)
+  function quickLinksHtml() {
+    const links = (window.APP_CONFIG && window.APP_CONFIG.quickLinks) || [];
+    if (!links.length) return "";
+    return '<div class="quick-links">' + links.map((l) =>
+      '<a class="btn secondary block" href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.label) + " ↗</a>"
+    ).join("") + "</div>";
+  }
+
   // ---------- 화면: 홈 ----------
   function renderHome() {
     setHeader(null, null);
@@ -830,6 +839,7 @@
         "</div>" +
         '<div class="progress"><i style="width:' + pct + '%"></i></div>' +
       "</section>" +
+      quickLinksHtml() +
       '<div class="section-title">🗂️ 스탬프판</div>' +
       stampSummaryHtml() +
       '<div class="section-title">📅 오늘 일정</div>' +

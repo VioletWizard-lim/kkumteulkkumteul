@@ -330,3 +330,6 @@ main { flex: 1; padding: 4px 16px calc(var(--tabbar-h) + env(safe-area-inset-bot
 .medals { display: flex; flex-wrap: wrap; gap: 14px; }
 .medal { text-align: center; } .medal-icon { font-size: 40px; }
 .subnav a { padding: 9px 6px; font-size: 13px; }
+
+.quick-links { display: grid; gap: 8px; margin-top: 14px; }
+.quick-links .btn { display: block; text-align: center; text-decoration: none; }
