@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-22T23:46:51.879Z",
+  "updated": "2026-10-23T23:40:38.271Z",
   "items": [
+    {
+      "id": "live-0ef8ef5ee3",
+      "addedDate": "2026-10-24",
+      "archived": false,
+      "published": "2026-10-23T10:42:39.000Z",
+      "source": "EDMO",
+      "url": "https://edmo.eu/publications/digital-media-literacy-in-edmo-voices-from-the-community-finnish-arts-and-culture-agency/",
+      "title": "Digital Media Literacy in EDMO: Voices from the Community – Finnish Arts and Culture Agency",
+      "titleKo": "EDMO의 디지털 미디어 리터러시: 커뮤니티의 목소리 – 핀란드 예술 문화 기관",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "EDMO의 디지털 미디어 리터러시: 커뮤니티의 목소리 – 핀란드 예술 문화 기관"
+      ],
+      "summaryEn": [
+        "Digital Media Literacy in EDMO: Voices from the Community – Finnish Arts and Culture Agency"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-ae8f4f6534",
       "addedDate": "2026-10-23",
