@@ -5,7 +5,7 @@
 // quickLinks: 홈 화면 맨 위에 보이는 바로가기 버튼 (label: 버튼 글자, url: 열 주소)
 window.APP_CONFIG = {
   quickLinks: [
-    { label: "📋 구글 시트 바로가기", url: "https://docs.google.com/spreadsheets/d/1wF9xYMvhohoRIQEsVOiqI9nSsfwb0gKH1fvty0VhyMI/htmlview" }
+    { label: "📋 2027 유럽 탐방 시트 연결하기", url: "https://docs.google.com/spreadsheets/d/1wF9xYMvhohoRIQEsVOiqI9nSsfwb0gKH1fvty0VhyMI/htmlview" }
   ],
   scheduleSheetUrl: "https://docs.google.com/spreadsheets/d/1ynYB02RCAzhebXx_aCAX6KHtirYU_qvrILzftQ-9tTI/edit?gid=0#gid=0"
 };
