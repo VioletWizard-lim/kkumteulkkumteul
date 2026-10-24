@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-23T23:40:38.271Z",
+  "updated": "2026-10-24T22:47:28.390Z",
   "items": [
+    {
+      "id": "live-42ca7fe111",
+      "addedDate": "2026-10-25",
+      "archived": false,
+      "published": "2026-10-23T07:02:19.000Z",
+      "source": "Arzuw news",
+      "url": "https://arzuw.news/en/turkmenistan-discusses-educational-cooperation-with-finland",
+      "title": "Turkmenistan discusses educational cooperation with Finland",
+      "titleKo": "투르크메니스탄, 핀란드와 교육 협력 논의",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "투르크메니스탄, 핀란드와 교육 협력 논의"
+      ],
+      "summaryEn": [
+        "Turkmenistan discusses educational cooperation with Finland"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-0ef8ef5ee3",
       "addedDate": "2026-10-24",
