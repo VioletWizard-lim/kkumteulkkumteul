@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-24T22:47:28.390Z",
+  "updated": "2026-10-25T22:55:40.605Z",
   "items": [
+    {
+      "id": "live-35c1d3204f",
+      "addedDate": "2026-10-26",
+      "archived": false,
+      "published": "2026-10-22T07:00:00.000Z",
+      "source": "World Population Review",
+      "url": "https://worldpopulationreview.com/country-rankings/education-rankings-by-country",
+      "title": "Education Rankings by Country 2026",
+      "titleKo": "2026년 국가별 교육 순위",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "2026년 국가별 교육 순위"
+      ],
+      "summaryEn": [
+        "Education Rankings by Country 2026"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-42ca7fe111",
       "addedDate": "2026-10-25",
