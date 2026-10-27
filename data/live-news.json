@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-25T22:55:40.605Z",
+  "updated": "2026-10-27T00:08:40.338Z",
   "items": [
+    {
+      "id": "live-349ad7f4c9",
+      "addedDate": "2026-10-27",
+      "archived": false,
+      "published": "2026-10-26T12:59:17.000Z",
+      "source": "Yle News",
+      "url": "https://yle.fi/a/74-20253367?origin=rss",
+      "title": "'I'll kill you' — Finnish schools increasingly report threatening behaviour to police",
+      "titleKo": "'널 죽여버릴 거야' — 핀란드 학교에서 점점 더 위협적인 행동을 경찰에 신고하고 있습니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "교사들은 최근 몇 년간 폭력 위협과 무례한 말을 하는 일이 더 흔해졌다고 말합니다."
+      ],
+      "summaryEn": [
+        "Teachers say threats of violence and rude talk have become more common in recent years."
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-35c1d3204f",
       "addedDate": "2026-10-26",
