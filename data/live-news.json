@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-27T00:08:40.338Z",
+  "updated": "2026-10-28T00:09:14.376Z",
   "items": [
+    {
+      "id": "live-2677035e2e",
+      "addedDate": "2026-10-28",
+      "archived": false,
+      "published": "2026-10-26T17:00:03.000Z",
+      "source": "Helsinki Times",
+      "url": "https://www.helsinkitimes.fi/finland/finland-news/politics/29428-finland-proposes-cuts-to-child-benefits-pensions-and-education-to-reduce-debt.html",
+      "title": "Finland proposes cuts to child benefits, pensions and education to reduce debt",
+      "titleKo": "핀란드, 부채 줄이기 위해 아동 수당, 연금, 교육 삭감 제안",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "핀란드, 부채 줄이기 위해 아동 수당, 연금, 교육 삭감 제안"
+      ],
+      "summaryEn": [
+        "Finland proposes cuts to child benefits, pensions and education to reduce debt"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-349ad7f4c9",
       "addedDate": "2026-10-27",
