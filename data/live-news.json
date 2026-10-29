@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-28T00:09:14.376Z",
+  "updated": "2026-10-29T00:31:35.911Z",
   "items": [
+    {
+      "id": "live-938d8e1b70",
+      "addedDate": "2026-10-29",
+      "archived": false,
+      "published": "2026-10-26T13:12:45.000Z",
+      "source": "UA.NEWS",
+      "url": "https://ua.news/en/world/shkoli-finliandiyi-dedali-chastishe-povidomliaiut-politsiyi-pro-pogrozi-yle-news",
+      "title": "Finnish schools increasingly report threats to police — YLE News",
+      "titleKo": "핀란드 학교, 경찰에 대한 위협 신고 증가 — YLE News",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "핀란드 학교, 경찰에 대한 위협 신고 증가 — YLE News"
+      ],
+      "summaryEn": [
+        "Finnish schools increasingly report threats to police — YLE News"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-2677035e2e",
       "addedDate": "2026-10-28",
