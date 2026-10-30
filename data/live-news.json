@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-29T00:31:35.911Z",
+  "updated": "2026-10-30T00:30:05.339Z",
   "items": [
+    {
+      "id": "live-5880aa4fe7",
+      "addedDate": "2026-10-30",
+      "archived": false,
+      "published": "2026-10-29T15:14:33.000Z",
+      "source": "Opetushallitus",
+      "url": "https://www.oph.fi/en/news/2026/canada-attracts-interest-partner-arctic-higher-education-cooperation",
+      "title": "Canada attracts interest as a partner in Arctic higher education cooperation",
+      "titleKo": "캐나다, 북극 고등교육 협력 파트너로 관심 끌다",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "캐나다, 북극 고등교육 협력 파트너로 관심 끌다"
+      ],
+      "summaryEn": [
+        "Canada attracts interest as a partner in Arctic higher education cooperation"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-938d8e1b70",
       "addedDate": "2026-10-29",
