@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-31T00:15:17.186Z",
+  "updated": "2026-10-31T23:51:45.571Z",
   "items": [
+    {
+      "id": "live-67b4786ab2",
+      "addedDate": "2026-11-01",
+      "archived": false,
+      "published": "2026-10-26T12:07:00.000Z",
+      "source": "університет «Львівська політехніка",
+      "url": "https://lpnu.ua/en/news/lviv-polytechnic-and-finnish-partners-develop-cooperation-civil-protection-education-and",
+      "title": "Lviv Polytechnic and Finnish Partners Develop Cooperation in Civil Protection, Education, and Innovation",
+      "titleKo": "Lviv Polytechnic과 핀란드 파트너, 시민 보호, 교육 및 혁신 분야에서 협력 개발",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "Lviv Polytechnic과 핀란드 파트너, 시민 보호, 교육 및 혁신 분야에서 협력 개발"
+      ],
+      "summaryEn": [
+        "Lviv Polytechnic and Finnish Partners Develop Cooperation in Civil Protection, Education, and Innovation"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-b19516de73",
       "addedDate": "2026-10-31",
@@ -9,14 +29,17 @@
       "source": "Greek City Times",
       "url": "https://greekcitytimes.com/2026/10/31/greece-portugal-and-finland-join-forces-in-digital-health-education/",
       "title": "Greece, Portugal and Finland Join Forces in Digital Health Education",
-      "titleKo": "",
+      "titleKo": "그리스, 포르투갈, 핀란드가 디지털 보건 교육에 힘을 합치다",
       "tag": "교육 뉴스",
-      "summaryKo": [],
+      "summaryKo": [
+        "그리스, 포르투갈, 핀란드가 디지털 보건 교육에 힘을 합치다"
+      ],
       "summaryEn": [
         "Greece, Portugal and Finland Join Forces in Digital Health Education"
       ],
       "body": [],
-      "words": []
+      "words": [],
+      "summaryMachine": true
     },
     {
       "id": "live-5880aa4fe7",
@@ -577,30 +600,6 @@
       ],
       "summaryEn": [
         "UNESCO Honours Finland And Brazil AI-In-Education Projects With 2026 ICT Prize"
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-5fc04447ce",
-      "addedDate": "2026-10-03",
-      "archived": false,
-      "published": "2026-10-01T07:21:19.000Z",
-      "source": "Vaasan yliopisto",
-      "url": "https://www.uwasa.fi/en/newshub/news/university-vaasa-ranks-among-worlds-top-500-universities-and-leads-finland-research-quality",
-      "title": "University of Vaasa ranks among the world's top 500 universities and leads Finland in research quality",
-      "titleKo": "바사 대학교(University of Vaasa)는 세계 상위 500개 대학교에 속하며 연구 품질 부문에서 핀란드를 선도하고 있습니다.",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "바사 대학교(University of Vaasa)가 2027년 Times Higher Education(THE) 세계 대학 순위에서 다시 한번 세계 상위 500개 대학 중 하나로 자리매김했습니다.",
-        "이 대학은 118개국의 2,297개 대학 중 451-500위를 차지했습니다.",
-        "University of Vaasa는 여러 주요 지표에서 지속적으로 성과를 개선했습니다."
-      ],
-      "summaryEn": [
-        "The University of Vaasa has once again secured its place among the world's top 500 universities in the Times Higher Education (THE) World University Rankings 2027.",
-        "The university is ranked in the 451-500 band among 2,297 universities from 118 countries.",
-        "The University of Vaasa continued to improve its performance in several key indicators."
       ],
       "body": [],
       "words": [],
