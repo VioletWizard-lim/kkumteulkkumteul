@@ -1,6 +1,26 @@
 {
-  "updated": "2026-10-31T23:51:45.571Z",
+  "updated": "2026-11-02T00:02:35.345Z",
   "items": [
+    {
+      "id": "live-53d55ebfc9",
+      "addedDate": "2026-11-02",
+      "archived": false,
+      "published": "2026-11-01T10:22:40.000Z",
+      "source": "The Standard (HK)",
+      "url": "https://www.thestandard.com.hk/news/article/347147/AFS-Intercultural-Fair-offers-600-students-a-taste-of-life-in-14-countries",
+      "title": "AFS Intercultural Fair offers 600 students a taste of life in 14 countries",
+      "titleKo": "AFS 이문화 박람회에서는 600명의 학생들에게 14개국의 삶을 맛볼 수 있는 기회를 제공합니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "AFS 이문화 박람회에서는 600명의 학생들에게 14개국의 삶을 맛볼 수 있는 기회를 제공합니다."
+      ],
+      "summaryEn": [
+        "AFS Intercultural Fair offers 600 students a taste of life in 14 countries"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-67b4786ab2",
       "addedDate": "2026-11-01",
@@ -580,26 +600,6 @@
         "Finnish universities will launch their joint national career monitoring surveys on 1 October.",
         "Tampere University will send the survey to all alumni who graduated in 2021 with the degree of Master of Science (Technology or Architecture), Master of Arts, Licentiate of Medicine or Bachelor of Education (Early Childhood Education).",
         "A separate survey will be sent to all those who completed a doctoral degree in 2023."
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-0ed313c954",
-      "addedDate": "2026-10-03",
-      "archived": false,
-      "published": "2026-09-30T10:10:00.000Z",
-      "source": "NDTV",
-      "url": "https://www.ndtv.com/education/unesco-honours-finland-and-brazil-ai-in-education-projects-with-2026-ict-prize-12119531",
-      "title": "UNESCO Honours Finland And Brazil AI-In-Education Projects With 2026 ICT Prize",
-      "titleKo": "유네스코, 핀란드와 브라질의 AI 교육 프로젝트에 2026 ICT 상을 수여",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "유네스코, 2026년 ICT Prize NDTV로 핀란드와 브라질 AI 교육 프로젝트 선정"
-      ],
-      "summaryEn": [
-        "UNESCO Honours Finland And Brazil AI-In-Education Projects With 2026 ICT Prize"
       ],
       "body": [],
       "words": [],
