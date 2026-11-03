@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-02T00:02:35.345Z",
+  "updated": "2026-11-03T02:43:03.945Z",
   "items": [
+    {
+      "id": "live-c8771dd80a",
+      "addedDate": "2026-11-03",
+      "archived": false,
+      "published": "2026-11-02T12:02:48.000Z",
+      "source": "Yle News",
+      "url": "https://yle.fi/a/74-20254619?origin=rss",
+      "title": "Should Finland test every pupil at a national level? Researchers say no",
+      "titleKo": "핀란드는 국가 차원에서 모든 학생을 시험해야 합니까? 연구자들은 그렇지 않다고 말한다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "이 아이디어는 기술 저하에 대한 우려에서 비롯됩니다."
+      ],
+      "summaryEn": [
+        "The idea stems from concern about declining skills."
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-53d55ebfc9",
       "addedDate": "2026-11-02",
@@ -576,30 +596,6 @@
       ],
       "summaryEn": [
         "FTMC Researcher Shares Lessons On Teaching Quantum Physics"
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-bff72018a5",
-      "addedDate": "2026-10-03",
-      "archived": false,
-      "published": "2026-09-30T08:36:03.000Z",
-      "source": "tuni.fi",
-      "url": "https://www.tuni.fi/en/tau/news-and-events/career-monitoring-surveys-launched-complete-survey-support-students-career",
-      "title": "Career monitoring surveys launched – complete the survey to support students’ career planning and contribute to Tampere University’s funding",
-      "titleKo": "경력 모니터링 설문조사 시작 – 학생들의 경력 계획을 지원하고 Tampere University의 자금 지원에 기여하기 위해 설문조사를 완료하세요.",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "핀란드 대학들은 10월 1일부터 공동 국가 경력 모니터링 설문조사를 시작할 예정입니다.",
-        "탐페레 대학교는 2021년에 과학 석사(기술 또는 건축), 예술 석사, 의학 자격증 또는 교육 학사(유아 교육) 학위를 취득한 모든 동문에게 설문조사를 보낼 예정입니다.",
-        "2023년 박사학위 취득자 전원에게는 별도의 설문조사가 발송될 예정입니다."
-      ],
-      "summaryEn": [
-        "Finnish universities will launch their joint national career monitoring surveys on 1 October.",
-        "Tampere University will send the survey to all alumni who graduated in 2021 with the degree of Master of Science (Technology or Architecture), Master of Arts, Licentiate of Medicine or Bachelor of Education (Early Childhood Education).",
-        "A separate survey will be sent to all those who completed a doctoral degree in 2023."
       ],
       "body": [],
       "words": [],
