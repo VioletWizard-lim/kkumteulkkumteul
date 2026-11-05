@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-03T02:43:03.945Z",
+  "updated": "2026-11-05T01:10:03.004Z",
   "items": [
+    {
+      "id": "live-5cceae470e",
+      "addedDate": "2026-11-05",
+      "archived": false,
+      "published": "2026-11-04T12:46:43.000Z",
+      "source": "Yle News",
+      "url": "https://yle.fi/a/74-20255026?origin=rss",
+      "title": "\"All kids deserve an education\" — Finnish-American family can't get son into high school",
+      "titleKo": "\"모든 아이들은 교육을 받을 자격이 있습니다\" — 핀란드계 미국인 가정은 아들을 고등학교에 보낼 수 없습니다",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "16세의 Cameron은 단지 고등학교에 가고 싶어하지만 그와 같은 아이들을 돕기로 되어 있는 프로그램이 그를 막고 있습니다."
+      ],
+      "summaryEn": [
+        "Sixteen-year-old Cameron just wants to get into high school, but the programmes supposed to help kids like him are instead keeping him out."
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-c8771dd80a",
       "addedDate": "2026-11-03",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "Kela asks explanation from 25,000 students for lack of study progress"
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-a35d33ba72",
-      "addedDate": "2026-10-04",
-      "archived": false,
-      "published": "2026-10-03T14:36:07.000Z",
-      "source": "Quantum Zeitgeist",
-      "url": "https://quantumzeitgeist.com/quantum-physics-ftmc-researcher-shares/",
-      "title": "FTMC Researcher Shares Lessons On Teaching Quantum Physics",
-      "titleKo": "FTMC 연구원이 양자 물리학 교육에 대한 교훈을 공유합니다",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "FTMC 연구원이 양자 물리학 교육에 대한 교훈을 공유합니다"
-      ],
-      "summaryEn": [
-        "FTMC Researcher Shares Lessons On Teaching Quantum Physics"
       ],
       "body": [],
       "words": [],
