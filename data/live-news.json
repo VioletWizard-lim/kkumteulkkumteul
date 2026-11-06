@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-05T01:10:03.004Z",
+  "updated": "2026-11-06T01:16:57.692Z",
   "items": [
+    {
+      "id": "live-2cbee215fe",
+      "addedDate": "2026-11-06",
+      "archived": false,
+      "published": "2026-11-05T22:12:57.000Z",
+      "source": "Qatar Tribune",
+      "url": "https://www.qatar-tribune.com/article/262884/nation/finland-qatar-explore-cooperation-in-education-digitalisation-and-ai",
+      "title": "Finland, Qatar explore cooperation in education, digitalisation and AI",
+      "titleKo": "핀란드, 카타르, 교육, 디지털화, AI 분야 협력 모색",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "핀란드, 카타르, 교육, 디지털화, AI 분야 협력 모색"
+      ],
+      "summaryEn": [
+        "Finland, Qatar explore cooperation in education, digitalisation and AI"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-5cceae470e",
       "addedDate": "2026-11-05",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "Some parents are using AI tools to strip watermarks from their kids' school photos."
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-011438d35c",
-      "addedDate": "2026-10-05",
-      "archived": false,
-      "published": "2026-10-02T23:43:30.000Z",
-      "source": "Daily Finland",
-      "url": "https://www.dailyfinland.fi/education/51588/Kela-asks-explanation-from-25000-students-for-lack-of-study-progress",
-      "title": "Kela asks explanation from 25,000 students for lack of study progress",
-      "titleKo": "Kela는 25,000명의 학생에게 학습 진행 부족에 대한 설명을 요청합니다.",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "Kela는 25,000명의 학생에게 학습 진행 부족에 대한 설명을 요청합니다."
-      ],
-      "summaryEn": [
-        "Kela asks explanation from 25,000 students for lack of study progress"
       ],
       "body": [],
       "words": [],
