@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-07T00:30:54.033Z",
+  "updated": "2026-11-08T00:04:45.519Z",
   "items": [
+    {
+      "id": "live-4193fa7d41",
+      "addedDate": "2026-11-08",
+      "archived": false,
+      "published": "2026-11-07T07:12:41.000Z",
+      "source": "Engineerine",
+      "url": "https://engineerine.com/finland-education-no-tests/",
+      "title": "How Finland Built a World-Leading Education System by Removing Standardized Tests, Cutting Homework, and Valuing Teachers Like Doctors",
+      "titleKo": "핀란드가 표준화된 시험을 없애고, 숙제를 줄이고, 교사를 의사처럼 소중히 여김으로써 세계 최고의 교육 시스템을 구축한 방법",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "핀란드가 표준화된 시험을 없애고, 숙제를 줄이고, 교사를 의사처럼 소중히 여김으로써 세계 최고의 교육 시스템을 구축한 방법"
+      ],
+      "summaryEn": [
+        "How Finland Built a World-Leading Education System by Removing Standardized Tests, Cutting Homework, and Valuing Teachers Like Doctors"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-e4eee0b09f",
       "addedDate": "2026-11-07",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "Canadian students losing ground amid “global learning recession”: Paul W."
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-ccae1e20a1",
-      "addedDate": "2026-10-07",
-      "archived": false,
-      "published": "2026-10-06T06:24:36.000Z",
-      "source": "The Korea Times",
-      "url": "https://www.koreatimes.co.kr/amp/opinion/20261006/stress-free-education-produces-resilience-free-children",
-      "title": "Stress-free education produces resilience-free children",
-      "titleKo": "스트레스 없는 교육은 회복탄력성이 없는 아이들을 낳습니다",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "스트레스 없는 교육은 회복탄력성이 없는 아이들을 낳습니다"
-      ],
-      "summaryEn": [
-        "Stress-free education produces resilience-free children"
       ],
       "body": [],
       "words": [],
