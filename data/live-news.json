@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-08T00:04:45.519Z",
+  "updated": "2026-11-09T00:19:41.941Z",
   "items": [
+    {
+      "id": "live-e7cf27f88e",
+      "addedDate": "2026-11-09",
+      "archived": false,
+      "published": "2026-11-06T22:37:22.000Z",
+      "source": "СПЖ",
+      "url": "https://spzh.eu/en/news/93431-finnish-state-body-calls-songs-about-god-in-schools-discrimination",
+      "title": "Finnish state body calls songs about God in schools “discrimination”",
+      "titleKo": "핀란드 정부 기관, 학교에서 신에 관한 노래를 “차별”이라고 비난",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "핀란드 정부 기관, 학교에서 신에 관한 노래를 “차별”이라고 비난"
+      ],
+      "summaryEn": [
+        "Finnish state body calls songs about God in schools “discrimination”"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-4193fa7d41",
       "addedDate": "2026-11-08",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "The city council voted against an outright ban on face coverings at a meeting on Wednesday, but a new safety guideline for schools will be issued."
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-b1c57ea718",
-      "addedDate": "2026-10-08",
-      "archived": false,
-      "published": "2026-10-07T19:21:53.000Z",
-      "source": "Google News",
-      "url": "https://macdonaldlaurier.ca/canadian-students-losing-ground-amid-global-learning-recession-paul-w-bennett-for-inside-policy/",
-      "title": "Canadian students losing ground amid “global learning recession”: Paul W. Bennett for Inside Policy - The Macdonald-Laurier Institute",
-      "titleKo": "'글로벌 학습 불황' 으로 삶의 터전을 잃은 캐나다 학생들: 폴 W. 베넷 (Paul W. Bennett) 의 인사이드 정책 - 맥도널드-로리어 연구소 (The Macdonald-Laurier Institute)",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "\"글로벌 학습 불황\" 으로 어려움을 겪고 있는 캐나다 학생들: Paul W."
-      ],
-      "summaryEn": [
-        "Canadian students losing ground amid “global learning recession”: Paul W."
       ],
       "body": [],
       "words": [],
