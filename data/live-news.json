@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-09T00:19:41.941Z",
+  "updated": "2026-11-10T03:03:46.611Z",
   "items": [
+    {
+      "id": "live-1c146d7476",
+      "addedDate": "2026-11-10",
+      "archived": false,
+      "published": "2026-11-09T23:23:21.000Z",
+      "source": "Idaho State University",
+      "url": "https://www.isu.edu/news/2026-fall/idaho-state-university-prof-receives-fulbright-scholar-award-to-conduct-research-in-finland.html",
+      "title": "Idaho State University Prof. Receives Fulbright Scholar Award to Conduct Research in Finland",
+      "titleKo": "아이다호 주립대학교 교수, 핀란드에서 연구 수행으로 풀브라이트 학자상 수상",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "아이다호 주립대학교 교수"
+      ],
+      "summaryEn": [
+        "Idaho State University Prof."
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-e7cf27f88e",
       "addedDate": "2026-11-09",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "Thailand expands Finnish AI maths trial to 100 schools for full academic term"
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-3fb1f24cb9",
-      "addedDate": "2026-10-09",
-      "archived": false,
-      "published": "2026-10-08T10:37:07.000Z",
-      "source": "Yle News",
-      "url": "https://yle.fi/a/74-20250494?origin=rss",
-      "title": "Helsinki will not ban face coverings in schools, but tightens guidelines",
-      "titleKo": "헬싱키는 학교에서 안면 가리개 착용을 금지하지 않지만 지침을 강화할 예정입니다.",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "시의회는 수요일 회의에서 안면 가리개 전면 금지에 반대하는 투표를 했으나 학교에 대한 새로운 안전 지침이 발표될 예정이다."
-      ],
-      "summaryEn": [
-        "The city council voted against an outright ban on face coverings at a meeting on Wednesday, but a new safety guideline for schools will be issued."
       ],
       "body": [],
       "words": [],
