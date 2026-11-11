@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-10T03:03:46.611Z",
+  "updated": "2026-11-11T00:57:09.345Z",
   "items": [
+    {
+      "id": "live-5df1bf1792",
+      "addedDate": "2026-11-11",
+      "archived": false,
+      "published": "2026-11-10T04:09:00.000Z",
+      "source": "Upper Michigan's Source",
+      "url": "https://www.uppermichiganssource.com/2026/11/10/negaunee-high-school-finnish-teacher-retires-after-47-years/",
+      "title": "Negaunee High School Finnish teacher retires after 47 years",
+      "titleKo": "Negaunee High School 핀란드 교사, 47년 만에 은퇴",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "Negaunee High School 핀란드 교사, 47년 만에 은퇴"
+      ],
+      "summaryEn": [
+        "Negaunee High School Finnish teacher retires after 47 years"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-1c146d7476",
       "addedDate": "2026-11-10",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "Malaysia’s education dilemma: We adopt the method, but not the ecosystem"
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-548c736b8f",
-      "addedDate": "2026-10-10",
-      "archived": false,
-      "published": "2026-10-08T18:21:23.000Z",
-      "source": "Pattaya Mail",
-      "url": "https://www.pattayamail.com/thailandnews/thailand-expands-finnish-ai-maths-trial-to-100-schools-for-full-academic-term-567663",
-      "title": "Thailand expands Finnish AI maths trial to 100 schools for full academic term",
-      "titleKo": "태국, 전체 학기 동안 핀란드 AI 수학 시험을 100개 학교로 확대",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "태국, 전체 학기 동안 핀란드 AI 수학 시험을 100개 학교로 확대"
-      ],
-      "summaryEn": [
-        "Thailand expands Finnish AI maths trial to 100 schools for full academic term"
       ],
       "body": [],
       "words": [],
