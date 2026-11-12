@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-11T00:57:09.345Z",
+  "updated": "2026-11-12T02:03:41.117Z",
   "items": [
+    {
+      "id": "live-f62ca4b2bf",
+      "addedDate": "2026-11-12",
+      "archived": false,
+      "published": "2026-11-11T14:07:00.000Z",
+      "source": "Fuel Cells Works",
+      "url": "https://fuelcellsworks.com/2026/11/11/clean-technology/cefmof-introduces-hydrogen-technologies-to-schoolchildren-through-a-new-hands-on-learning-environment",
+      "title": "Hydrogen Technologies Learning for Schoolchildren",
+      "titleKo": "학생들을 위한 수소 기술 학습",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "학생들을 위한 수소 기술 학습"
+      ],
+      "summaryEn": [
+        "Hydrogen Technologies Learning for Schoolchildren"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-5df1bf1792",
       "addedDate": "2026-11-11",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "The space sector needs diverse expertise – Finnish higher education institutions offer courses that explore space as an operating environment"
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-234ea599b6",
-      "addedDate": "2026-10-11",
-      "archived": false,
-      "published": "2026-10-10T01:00:45.000Z",
-      "source": "Newswav",
-      "url": "https://newswav.com/article/malaysia-s-education-dilemma-we-adopt-the-method-but-not-the-ecosystem-A2610_sWKBvg",
-      "title": "Malaysia’s education dilemma: We adopt the method, but not the ecosystem",
-      "titleKo": "말레이시아의 교육 딜레마: 우리는 방법을 채택하지만 생태계는 채택하지 않습니다.",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "말레이시아의 교육 딜레마: 우리는 방법을 채택하지만 생태계는 채택하지 않습니다."
-      ],
-      "summaryEn": [
-        "Malaysia’s education dilemma: We adopt the method, but not the ecosystem"
       ],
       "body": [],
       "words": [],
