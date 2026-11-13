@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-12T02:03:41.117Z",
+  "updated": "2026-11-13T01:34:20.529Z",
   "items": [
+    {
+      "id": "live-307e8f78d5",
+      "addedDate": "2026-11-13",
+      "archived": false,
+      "published": "2026-11-12T17:29:51.000Z",
+      "source": "Saint Louis University",
+      "url": "https://www.slu.edu/madrid/news/2026/laura-muro-sustainability-research-in-finland.php",
+      "title": "Laura Muro Connects Sustainability Research in Finland with Learning at SLU-Madrid : SLU",
+      "titleKo": "Laura Muro, 핀란드의 지속 가능성 연구와 SLU-Madrid에서의 학습 연결 : SLU",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "Laura Muro, 핀란드의 지속 가능성 연구와 SLU-Madrid에서의 학습 연결 : SLU"
+      ],
+      "summaryEn": [
+        "Laura Muro Connects Sustainability Research in Finland with Learning at SLU-Madrid : SLU"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-f62ca4b2bf",
       "addedDate": "2026-11-12",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "Autumn half-term holidays are staggered so that in some parts of the country, the breaks don't begin until next week."
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-bd5fea098a",
-      "addedDate": "2026-10-12",
-      "archived": false,
-      "published": "2026-10-08T10:08:53.000Z",
-      "source": "www.tuni.fi",
-      "url": "https://www.tuni.fi/en/tau/news-and-events/space-sector-needs-diverse-expertise-finnish-higher-education-institutions",
-      "title": "The space sector needs diverse expertise – Finnish higher education institutions offer courses that explore space as an operating environment",
-      "titleKo": "우주 부문에는 다양한 전문 지식이 필요합니다. 핀란드의 고등 교육 기관에서는 우주를 운영 환경으로 탐구하는 과정을 제공합니다.",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "우주 부문에는 다양한 전문 지식이 필요합니다. 핀란드의 고등 교육 기관에서는 우주를 운영 환경으로 탐구하는 과정을 제공합니다."
-      ],
-      "summaryEn": [
-        "The space sector needs diverse expertise – Finnish higher education institutions offer courses that explore space as an operating environment"
       ],
       "body": [],
       "words": [],
