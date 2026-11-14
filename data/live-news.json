@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-13T01:34:20.529Z",
+  "updated": "2026-11-14T01:07:49.124Z",
   "items": [
+    {
+      "id": "live-41435a483a",
+      "addedDate": "2026-11-14",
+      "archived": false,
+      "published": "2026-11-12T18:30:00.000Z",
+      "source": "Stillwater News Press",
+      "url": "https://www.stwnewspress.com/news/stillwater-educator-plans-to-open-one-academy-visits-finland-for-a-study-tour-of-schools/article_bee75e49-8ab2-49c6-a8b0-0599c297740a.html",
+      "title": "Stillwater educator plans to open ONE Academy, visits Finland for a study tour of schools",
+      "titleKo": "스틸워터 교육자는 ONE 아카데미 개설 계획, 학교 견학을 위해 핀란드 방문",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "스틸워터 교육자는 ONE 아카데미 개설 계획, 학교 견학을 위해 핀란드 방문"
+      ],
+      "summaryEn": [
+        "Stillwater educator plans to open ONE Academy, visits Finland for a study tour of schools"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-307e8f78d5",
       "addedDate": "2026-11-13",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "Q&A: Meet Uday Sinha, candidate for Santee School District trustee in Area 5 San Diego Union-Tribune"
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-413c8235f7",
-      "addedDate": "2026-10-13",
-      "archived": false,
-      "published": "2026-10-12T05:45:31.000Z",
-      "source": "Yle News",
-      "url": "https://yle.fi/a/74-20250971?origin=rss",
-      "title": "Finnish schools see start of autumn breaks",
-      "titleKo": "핀란드 학교에서는 가을 방학이 시작됩니다.",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "가을 반기 휴가가 엇갈려 일부 지역에서는 다음 주까지 휴가가 시작되지 않습니다."
-      ],
-      "summaryEn": [
-        "Autumn half-term holidays are staggered so that in some parts of the country, the breaks don't begin until next week."
       ],
       "body": [],
       "words": [],
