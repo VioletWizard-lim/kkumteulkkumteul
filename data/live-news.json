@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-14T01:07:49.124Z",
+  "updated": "2026-11-15T00:32:07.466Z",
   "items": [
+    {
+      "id": "live-05224caab5",
+      "addedDate": "2026-11-15",
+      "archived": true,
+      "published": "2026-09-29T07:00:00.000Z",
+      "source": "Valtioneuvosto",
+      "url": "https://valtioneuvosto.fi/en/-/1410845/education-at-a-glance-women-make-up-most-teachers-but-remain-underrepresented-in-education-leadership",
+      "title": "Education at a Glance: Women make up most teachers, but remain underrepresented in education leadership",
+      "titleKo": "한 눈에 보는 교육: 교사의 대부분은 여성이지만 교육 리더십에서는 여전히 과소 대표됩니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "한 눈에 보는 교육: 교사의 대부분은 여성이지만 교육 리더십에서는 여전히 과소 대표됩니다."
+      ],
+      "summaryEn": [
+        "Education at a Glance: Women make up most teachers, but remain underrepresented in education leadership"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-41435a483a",
       "addedDate": "2026-11-14",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "A total of around 1,000 children in Finland are home-schooled, with many choosing the option for health or wellbeing reasons."
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-3264a47807",
-      "addedDate": "2026-10-14",
-      "archived": false,
-      "published": "2026-10-13T22:22:07.000Z",
-      "source": "Google News",
-      "url": "https://www.sandiegouniontribune.com/2026/10/13/qa-meet-uday-sinha-candidate-for-santee-school-district-trustee-in-area-5/",
-      "title": "Q&A: Meet Uday Sinha, candidate for Santee School District trustee in Area 5 - San Diego Union-Tribune",
-      "titleKo": "Q&A: 지역 5의 Santee 교육구 이사 후보인 Uday Sinha를 만나보세요 - San Diego Union-Tribune",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "Q&A: Area 5 San Diego Union-Tribune의 Santee 교육구 이사 후보인 Uday Sinha를 만나보세요."
-      ],
-      "summaryEn": [
-        "Q&A: Meet Uday Sinha, candidate for Santee School District trustee in Area 5 San Diego Union-Tribune"
       ],
       "body": [],
       "words": [],
