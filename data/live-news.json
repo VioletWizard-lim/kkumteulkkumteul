@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-15T00:32:07.466Z",
+  "updated": "2026-11-16T00:31:51.310Z",
   "items": [
+    {
+      "id": "live-71bb313a5d",
+      "addedDate": "2026-11-16",
+      "archived": true,
+      "published": "2026-09-25T07:00:00.000Z",
+      "source": "조선일보",
+      "url": "https://www.chosun.com/english/market-money-en/2026/09/25/BAN4H35AWBC2FGWO5HXHW7MN5M/",
+      "title": "Finland's Play-Based Education Model Plummets in Global Rankings",
+      "titleKo": "핀란드의 놀이 기반 교육 모델이 글로벌 순위에서 급락했습니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "핀란드의 놀이 기반 교육 모델이 글로벌 순위에서 급락했습니다."
+      ],
+      "summaryEn": [
+        "Finland's Play-Based Education Model Plummets in Global Rankings"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-05224caab5",
       "addedDate": "2026-11-15",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "New University of Helsinki Master’s Programme Brings Students to Satakunta for Their First Field Study Period"
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-6f8ab6f0d0",
-      "addedDate": "2026-10-15",
-      "archived": false,
-      "published": "2026-10-14T13:18:17.000Z",
-      "source": "Yle News",
-      "url": "https://yle.fi/a/74-20251499?origin=rss",
-      "title": "Finnish cities pushing for mandatory school attendance law",
-      "titleKo": "의무학교 출석법을 추진하는 핀란드 도시들",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "핀란드에서는 총 약 1,000명의 어린이가 홈스쿨링을 하고 있으며, 많은 어린이가 건강이나 복지상의 이유로 홈스쿨링을 선택하고 있습니다."
-      ],
-      "summaryEn": [
-        "A total of around 1,000 children in Finland are home-schooled, with many choosing the option for health or wellbeing reasons."
       ],
       "body": [],
       "words": [],
