@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-16T00:31:51.310Z",
+  "updated": "2026-11-17T03:18:41.600Z",
   "items": [
+    {
+      "id": "live-a619d0857c",
+      "addedDate": "2026-11-17",
+      "archived": false,
+      "published": "2026-11-16T15:07:55.000Z",
+      "source": "CSUSM NewsCenter",
+      "url": "https://news.csusm.edu/students-participate-in-new-york-art-exhibition/",
+      "title": "Students Participate in New York Art Exhibition",
+      "titleKo": "뉴욕 미술전시회에 학생들 참가",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "뉴욕 미술전시회에 학생들 참가"
+      ],
+      "summaryEn": [
+        "Students Participate in New York Art Exhibition"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-71bb313a5d",
       "addedDate": "2026-11-16",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "Finland Has An Education System The Other Country Should Learn From"
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-65c6bf7b80",
-      "addedDate": "2026-10-17",
-      "archived": false,
-      "published": "2026-10-16T07:43:31.000Z",
-      "source": "Rauman kaupunki",
-      "url": "https://www.rauma.fi/en/blog/new-university-of-helsinki-masters-programme-brings-students-to-satakunta-for-their-first-field-study-period/",
-      "title": "New University of Helsinki Master’s Programme Brings Students to Satakunta for Their First Field Study Period",
-      "titleKo": "새로운 헬싱키 대학교 석사 프로그램으로 학생들이 첫 현장 학습 기간을 사타쿤타로 데려옵니다",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "새로운 헬싱키 대학교 석사 프로그램으로 학생들이 첫 현장 학습 기간을 사타쿤타로 데려옵니다"
-      ],
-      "summaryEn": [
-        "New University of Helsinki Master’s Programme Brings Students to Satakunta for Their First Field Study Period"
       ],
       "body": [],
       "words": [],
