@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-17T03:18:41.600Z",
+  "updated": "2026-11-18T02:40:00.677Z",
   "items": [
+    {
+      "id": "live-3b11f87086",
+      "addedDate": "2026-11-18",
+      "archived": false,
+      "published": "2026-11-17T19:08:00.000Z",
+      "source": "Kuwait Times",
+      "url": "https://kuwaittimes.com/article/53874/kuwait/kuwait-eyes-finnish-education-practices-to-modernize-curricula/amp",
+      "title": "Kuwait eyes Finnish education practices to modernize curricula",
+      "titleKo": "쿠웨이트는 커리큘럼을 현대화하기 위해 핀란드 교육 관행을 주목하고 있습니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "쿠웨이트는 커리큘럼을 현대화하기 위해 핀란드 교육 관행을 주목하고 있습니다."
+      ],
+      "summaryEn": [
+        "Kuwait eyes Finnish education practices to modernize curricula"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-a619d0857c",
       "addedDate": "2026-11-17",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "International students and their experiences make for a memorable semester."
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-152aef16db",
-      "addedDate": "2026-10-18",
-      "archived": false,
-      "published": "2026-10-17T10:16:56.000Z",
-      "source": "Πρώτη Έκδοση Δωδεκανήσου",
-      "url": "https://protiekdosi.news/finland-has-an-education-system-the-other-country-should-learn-from/",
-      "title": "Finland Has An Education System The Other Country Should Learn From",
-      "titleKo": "핀란드에는 다른 나라가 배워야 할 교육 시스템이 있습니다.",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "핀란드에는 다른 나라가 배워야 할 교육 시스템이 있습니다."
-      ],
-      "summaryEn": [
-        "Finland Has An Education System The Other Country Should Learn From"
       ],
       "body": [],
       "words": [],
