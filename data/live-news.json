@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-18T02:40:00.677Z",
+  "updated": "2026-11-19T02:07:59.061Z",
   "items": [
+    {
+      "id": "live-4766e4f2e4",
+      "addedDate": "2026-11-19",
+      "archived": false,
+      "published": "2026-11-17T14:16:13.000Z",
+      "source": "Legit News",
+      "url": "https://www.legit.ng/world/1741845-finland-international-students-work-30-hours-week-studies/",
+      "title": "Finland Allows International Students to Work 30 Hours Per Week During Studies",
+      "titleKo": "핀란드에서는 유학생들이 학업 중 주당 30시간 일할 수 있도록 허용합니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "핀란드에서는 유학생들이 학업 중 주당 30시간 일할 수 있도록 허용합니다."
+      ],
+      "summaryEn": [
+        "Finland Allows International Students to Work 30 Hours Per Week During Studies"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-3b11f87086",
       "addedDate": "2026-11-18",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "Australia Tightens Student Visa Rules: What Does It Mean for Indian Students?"
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-8bc658d915",
-      "addedDate": "2026-10-19",
-      "archived": false,
-      "published": "2026-10-16T09:36:50.000Z",
-      "source": "Vietnam.vn",
-      "url": "https://www.vietnam.vn/en/sinh-vien-quoc-te-va-nhung-trai-nghiem-lam-nen-mot-hoc-ky-dang-nho",
-      "title": "International students and their experiences make for a memorable semester.",
-      "titleKo": "유학생들과 그들의 경험은 기억에 남는 학기를 만듭니다.",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "유학생들과 그들의 경험은 기억에 남는 학기를 만듭니다."
-      ],
-      "summaryEn": [
-        "International students and their experiences make for a memorable semester."
       ],
       "body": [],
       "words": [],
