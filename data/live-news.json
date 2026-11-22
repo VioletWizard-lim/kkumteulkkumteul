@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-21T01:53:00.212Z",
+  "updated": "2026-11-22T00:47:29.318Z",
   "items": [
+    {
+      "id": "live-1de7d66631",
+      "addedDate": "2026-11-22",
+      "archived": false,
+      "published": "2026-11-20T13:51:56.000Z",
+      "source": "Helsinki Times",
+      "url": "https://www.helsinkitimes.com/finland/finland-news/domestic/29517-work-based-immigration-to-finland-rises-as-student-applications-drop-by-a-third.html",
+      "title": "Work-based immigration to Finland rises as student applications drop by a third",
+      "titleKo": "학생 지원이 3분의 1로 감소함에 따라 핀란드로의 취업 이민이 증가했습니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "학생 지원이 3분의 1로 감소함에 따라 핀란드로의 취업 이민이 증가했습니다."
+      ],
+      "summaryEn": [
+        "Work-based immigration to Finland rises as student applications drop by a third"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-0bb411e8d5",
       "addedDate": "2026-11-21",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "All Hungarian higher education institutions and organisations have full access to Erasmus+ once again"
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-489eef4c1c",
-      "addedDate": "2026-10-22",
-      "archived": false,
-      "published": "2026-10-21T09:28:55.000Z",
-      "source": "www.tuni.fi",
-      "url": "https://www.tuni.fi/en/tau/news-and-events/first-graduate-doctoral-education-pilot-lauri-ryyppo-works-advance-cancer",
-      "title": "First graduate of doctoral education pilot Lauri Ryyppö works to advance cancer diagnostics",
-      "titleKo": "박사 과정 파일럿 Lauri Ryyppö의 첫 졸업생, 암 진단 발전을 위해 노력",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "박사 과정 파일럿 Lauri Ryyppö의 첫 졸업생, 암 진단 발전을 위해 노력"
-      ],
-      "summaryEn": [
-        "First graduate of doctoral education pilot Lauri Ryyppö works to advance cancer diagnostics"
       ],
       "body": [],
       "words": [],
