@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-24T05:03:52.091Z",
+  "updated": "2026-11-25T03:52:24.271Z",
   "items": [
+    {
+      "id": "live-dd9731e6fb",
+      "addedDate": "2026-11-25",
+      "archived": false,
+      "published": "2026-11-24T13:30:41.000Z",
+      "source": "IDIOTEQ.com",
+      "url": "https://idioteq.com/finnish-vegan-hardcore-band-ecotage-touring/",
+      "title": "Finnish vegan hardcore band ECOTAGE bring animal liberation and old-school metallic hardcore to European DIY spaces",
+      "titleKo": "핀란드 비건 하드코어 밴드 ECOTAGE는 동물 해방과 구식 메탈 하드코어를 유럽 DIY 공간에 선보입니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "핀란드 비건 하드코어 밴드 ECOTAGE는 동물 해방과 구식 메탈 하드코어를 유럽 DIY 공간에 선보입니다."
+      ],
+      "summaryEn": [
+        "Finnish vegan hardcore band ECOTAGE bring animal liberation and old-school metallic hardcore to European DIY spaces"
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-027a45a2be",
       "addedDate": "2026-11-24",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "Education Rankings by Country 2026"
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-42ca7fe111",
-      "addedDate": "2026-10-25",
-      "archived": false,
-      "published": "2026-10-23T07:02:19.000Z",
-      "source": "Arzuw news",
-      "url": "https://arzuw.news/en/turkmenistan-discusses-educational-cooperation-with-finland",
-      "title": "Turkmenistan discusses educational cooperation with Finland",
-      "titleKo": "투르크메니스탄, 핀란드와 교육 협력 논의",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "투르크메니스탄, 핀란드와 교육 협력 논의"
-      ],
-      "summaryEn": [
-        "Turkmenistan discusses educational cooperation with Finland"
       ],
       "body": [],
       "words": [],
