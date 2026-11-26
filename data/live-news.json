@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-25T03:52:24.271Z",
+  "updated": "2026-11-26T03:17:27.249Z",
   "items": [
+    {
+      "id": "live-571f33bfa3",
+      "addedDate": "2026-11-26",
+      "archived": false,
+      "published": "2026-11-25T08:43:38.000Z",
+      "source": "Yle News",
+      "url": "https://yle.fi/a/74-20258850?origin=rss",
+      "title": "Lahti school breaks Finnish law with 8-hour day for seventh-graders",
+      "titleKo": "Lahti 학교는 7학년 학생들에게 하루 8시간 노동을 허용하여 핀란드 법을 어겼습니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "이 학교의 일부 13세 학생들은 월요일에 8시간의 수업을 받았는데, 이는 법적으로 정해진 한 시간을 1시간 초과한 것입니다."
+      ],
+      "summaryEn": [
+        "Some 13-year-old students at the school had eight hours of classes on Mondays, exceeding the legally-mandated limit by one hour."
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-dd9731e6fb",
       "addedDate": "2026-11-25",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "Teachers say threats of violence and rude talk have become more common in recent years."
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-35c1d3204f",
-      "addedDate": "2026-10-26",
-      "archived": false,
-      "published": "2026-10-22T07:00:00.000Z",
-      "source": "World Population Review",
-      "url": "https://worldpopulationreview.com/country-rankings/education-rankings-by-country",
-      "title": "Education Rankings by Country 2026",
-      "titleKo": "2026년 국가별 교육 순위",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "2026년 국가별 교육 순위"
-      ],
-      "summaryEn": [
-        "Education Rankings by Country 2026"
       ],
       "body": [],
       "words": [],
