@@ -1929,8 +1929,10 @@
     });
     return leafletLoading;
   }
-  function renderSchedule(dateArg) {
-    setHeader("여행 일정", dateArg ? "#/schedule" : null);
+  // dateArg: 보여줄 날짜. picked=true면 화면 안에서 고른 것(주소는 그대로, 위 탭 유지)
+  function renderSchedule(dateArg, picked) {
+    const fromUrl = /^#\/schedule\/./.test(location.hash);
+    setHeader("여행 일정", fromUrl ? "#/schedule" : null);
     setTab("schedule");
     if (!scheduleSheetUrl()) {
       view.innerHTML = '<div class="card" style="margin-top:6px" id="scheduleCard">' + scheduleCardHtml() + "</div>";
@@ -1940,7 +1942,7 @@
     const data = readSchedule();
     if (!data || data.link !== scheduleSheetUrl()) {
       view.innerHTML = '<div class="card muted" style="margin-top:6px">일정을 불러오는 중이에요…</div>';
-      refreshSchedule(true).then(() => renderSchedule(dateArg)).catch((e) => {
+      refreshSchedule(true).then(() => renderSchedule(dateArg, picked)).catch((e) => {
         view.innerHTML = '<div class="card" style="margin-top:6px">⚠️ ' + esc(e.message) + '<br><button class="btn secondary" data-act="schedule-setup" style="margin-top:10px">시트 연결 다시 하기</button></div>';
         bindScheduleCard(view);
       });
@@ -1982,9 +1984,9 @@
       '<div class="btn-row"><button class="btn ghost" data-act="reload">🔄 시트에서 다시 불러오기</button></div>' +
       '<p class="small muted">' + new Date(data.fetchedAt).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) + " 시트에서 불러옴</p>";
     view.innerHTML = html;
-    view.querySelectorAll("[data-date]").forEach((b) => { b.onclick = () => (dateArg ? navigate("#/schedule/" + b.dataset.date) : renderSchedule(b.dataset.date)); });
+    view.querySelectorAll("[data-date]").forEach((b) => { b.onclick = () => renderSchedule(b.dataset.date, true); });
     view.querySelector('[data-act="reload"]').onclick = () => {
-      refreshSchedule(true).then(() => { toast("일정을 새로 불러왔어요"); renderSchedule(date); }).catch((e) => toast("⚠️ " + e.message));
+      refreshSchedule(true).then(() => { toast("일정을 새로 불러왔어요"); renderSchedule(date, true); }).catch((e) => toast("⚠️ " + e.message));
     };
     const token = ++scheduleToken;
     // 좌표 찾기 → 지도(바로) → 이동 시간(따로 채움)
