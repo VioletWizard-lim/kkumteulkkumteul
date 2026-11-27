@@ -1911,6 +1911,7 @@
     });
   }
   let scheduleToken = 0;
+  const SHOW_ROUTE_LINES = false;
   function drawTripMap(token, points, events, legs) {
     const box = document.getElementById("tripMap");
     if (!box || token !== scheduleToken) return;
@@ -1927,7 +1928,8 @@
         L.marker([p.lat, p.lon], { icon: icon }).addTo(map).bindPopup("<b>" + esc(events[i].title) + "</b><br>" + esc(timeRange(events[i])));
         bounds.push([p.lat, p.lon]);
       });
-      (legs || []).forEach((leg) => {
+      // 지금은 장소 위치(번호 핀)만 표시해요. 경로 선을 다시 그리려면 SHOW_ROUTE_LINES 를 true 로 바꾸세요.
+      if (SHOW_ROUTE_LINES) (legs || []).forEach((leg) => {
         if (leg && leg.line) L.polyline(leg.line.map((c) => [c[1], c[0]]), { color: "#2f6fdf", weight: 4, opacity: 0.75 }).addTo(map);
       });
       if (bounds.length === 1) map.setView(bounds[0], 15);
@@ -1955,7 +1957,7 @@
       title: date ? koDate(date) + " 일정" : "일정 지도",
       gmaps: gmaps,
       points: pts.map(({ p, i }) => ({ n: i + 1, lat: p.lat, lon: p.lon, title: events[i].title, time: timeRange(events[i]), place: events[i].place || "" })),
-      lines: (legs || []).filter((l) => l && l.line).map((l) => l.line)
+      lines: SHOW_ROUTE_LINES ? (legs || []).filter((l) => l && l.line).map((l) => l.line) : []
     };
     box.innerHTML =
       '<button class="btn secondary" data-act="bigmap">🔍 크게 보기 (새 창)</button>' +
