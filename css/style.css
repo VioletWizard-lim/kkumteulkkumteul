@@ -337,3 +337,5 @@ main { flex: 1; padding: 4px 16px calc(var(--tabbar-h) + env(safe-area-inset-bot
 .map-actions { display: flex; gap: 8px; margin: -6px 0 14px; }
 .map-actions:empty { display: none; }
 .map-actions .btn { flex: 1; padding: 10px 8px; font-size: 14px; text-align: center; text-decoration: none; }
+
+.leg-gap { height: 10px; }
