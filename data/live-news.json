@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-26T03:17:27.249Z",
+  "updated": "2026-11-27T03:23:03.211Z",
   "items": [
+    {
+      "id": "live-02f42f6434",
+      "addedDate": "2026-11-27",
+      "archived": false,
+      "published": "2026-11-26T13:01:47.000Z",
+      "source": "Yle News",
+      "url": "https://yle.fi/a/74-20259167?origin=rss",
+      "title": "\"Don't wake up at 36\" — Finland spends €250k educating uni students about fertility",
+      "titleKo": "\"36세에 깨어나지 마세요\" - 핀란드는 대학 학생들에게 출산에 관해 교육하는 데 25만 유로를 지출합니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "최근 정부는 사람들의 자녀 출산을 장려하기 위한 노력의 일환으로 젊은이들이 자신의 생물학적 시계를 이해하기를 원합니다."
+      ],
+      "summaryEn": [
+        "In its latest effort to encourage people to have children, the government wants young people to understand their biological clock."
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-571f33bfa3",
       "addedDate": "2026-11-26",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "Finland proposes cuts to child benefits, pensions and education to reduce debt"
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-349ad7f4c9",
-      "addedDate": "2026-10-27",
-      "archived": false,
-      "published": "2026-10-26T12:59:17.000Z",
-      "source": "Yle News",
-      "url": "https://yle.fi/a/74-20253367?origin=rss",
-      "title": "'I'll kill you' — Finnish schools increasingly report threatening behaviour to police",
-      "titleKo": "'널 죽여버릴 거야' — 핀란드 학교에서 점점 더 위협적인 행동을 경찰에 신고하고 있습니다.",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "교사들은 최근 몇 년간 폭력 위협과 무례한 말을 하는 일이 더 흔해졌다고 말합니다."
-      ],
-      "summaryEn": [
-        "Teachers say threats of violence and rude talk have become more common in recent years."
       ],
       "body": [],
       "words": [],
