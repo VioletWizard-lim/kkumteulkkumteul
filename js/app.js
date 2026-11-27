@@ -1622,10 +1622,11 @@
     if (idx.date < 0 || idx.title < 0) throw new Error("시트 첫 줄에 '날짜'와 '일정' 제목이 있어야 해요.");
     const get = (r, k) => (idx[k] >= 0 ? (r[idx[k]] || "").trim() : "");
     let lastDate = "";
+    const otherOrder = {};
     return rows.slice(1).map((r) => {
       // 날짜 칸에 "기타"라고 적으면 날짜 없는 '기타 장소'로 따로 모아요.
       const rawDate = get(r, "date");
-      const date = /^\s*기타/.test(rawDate) ? OTHER : parseSheetDate(rawDate) || lastDate;
+      const date = isOther(rawDate) ? otherKey(rawDate) : parseSheetDate(rawDate) || lastDate;
       lastDate = date;
       const lat = parseFloat(get(r, "lat")), lon = parseFloat(get(r, "lon"));
       return {
@@ -1633,10 +1634,18 @@
         title: get(r, "title"), place: get(r, "place"), address: get(r, "address"), memo: get(r, "memo"),
         lat: isFinite(lat) ? lat : null, lon: isFinite(lon) ? lon : null
       };
-    }).filter((e) => e.date && e.title).map((e, k) => Object.assign(e, { _row: k }))
+    }).filter((e) => e.date && e.title).map((e, k) => {
+      if (isOther(e.date) && otherOrder[e.date] === undefined) otherOrder[e.date] = Object.keys(otherOrder).length;
+      return Object.assign(e, { _row: k });
+    })
       .sort((a, b) => {
         // 기타는 맨 뒤에, 시트에 적은 순서대로
-        if (a.date === OTHER || b.date === OTHER) return a.date === b.date ? a._row - b._row : a.date === OTHER ? 1 : -1;
+        // 기타 묶음은 날짜 일정 뒤에, 시트에 처음 나온 순서대로
+        const ao = isOther(a.date), bo = isOther(b.date);
+        if (ao || bo) {
+          if (ao && bo) return a.date === b.date ? a._row - b._row : otherOrder[a.date] - otherOrder[b.date];
+          return ao ? 1 : -1;
+        }
         return (a.date + (a.start || "99")).localeCompare(b.date + (b.start || "99"));
       });
   }
@@ -1662,9 +1671,16 @@
     });
   }
   // 오늘 일정, 없으면 다가오는 첫 날 일정
-  const OTHER = "기타";
+  // 날짜 칸이 "기타" 또는 "기타(핀란드)"처럼 시작하면 '기타 장소' 묶음이에요. 괄호 안 이름별로 따로 모아요.
+  function isOther(v) { return /^\s*기타/.test(v || ""); }
+  function otherKey(v) {
+    const m = String(v).trim().replace(/[（［\[]/g, "(").replace(/[）］\]]/g, ")").match(/^기타\s*[(:·\-]?\s*([^)]*)\)?/);
+    const name = m && m[1] ? m[1].trim() : "";
+    return name ? "기타(" + name + ")" : "기타";
+  }
+  function otherName(key) { const m = key.match(/^기타\((.*)\)$/); return m ? m[1] : ""; }
   function scheduleDayToShow(events) {
-    events = events.filter((e) => e.date !== OTHER);
+    events = events.filter((e) => !isOther(e.date));
     const today = dateKey();
     const todays = events.filter((e) => e.date === today);
     if (todays.length) return { date: today, label: "오늘", events: todays };
@@ -1673,7 +1689,7 @@
     return null;
   }
   function koDate(iso) {
-    if (iso === OTHER) return "📌 기타";
+    if (isOther(iso)) return "📌 기타" + (otherName(iso) ? " " + otherName(iso) : "");
     const [y, m, d] = iso.split("-").map(Number);
     const dd = new Date(y, m - 1, d);
     return m + "월 " + d + "일 (" + ["일", "월", "화", "수", "목", "금", "토"][dd.getDay()] + ")";
@@ -1933,14 +1949,14 @@
       '<div class="date-chips">' + dates.map((d) => '<button class="chip ' + (d === date ? "on" : "") + '" data-date="' + d + '">' + koDate(d) + "</button>").join("") + "</div>" +
       '<div id="tripMap" class="trip-map"><div class="small muted" style="padding:12px">지도를 불러오는 중이에요…</div></div>' +
       '<div class="map-actions" id="mapActions"></div>' +
-      (date === OTHER ? '<p class="small muted" style="margin:0 2px 10px">📌 시트 날짜 칸에 "기타"라고 적은 장소들이에요. 날짜와 상관없이 가 볼 만한 곳을 모아 두세요.</p>' : "") +
+      (isOther(date) ? '<p class="small muted" style="margin:0 2px 10px">📌 시트 날짜 칸에 "' + esc(date) + '"라고 적은 장소들이에요. 날짜와 상관없이 가 볼 만한 곳을 모아 두세요.</p>' : "") +
       '<div class="timeline">';
     events.forEach((e, i) => {
-      if (i > 0 && date !== OTHER) html += '<div class="leg" id="leg-' + i + '"><div class="small muted">🧭 이동 시간 계산 중…</div></div>';
+      if (i > 0 && !isOther(date)) html += '<div class="leg" id="leg-' + i + '"><div class="small muted">🧭 이동 시간 계산 중…</div></div>';
       else if (i > 0) html += '<div class="leg-gap"></div>';
       html +=
         '<div class="card sch-item">' +
-          '<div class="row"><span class="sch-num">' + (i + 1) + '</span><div class="grow">' + (date === OTHER && !e.start ? "" : '<div class="small muted">' + esc(timeRange(e)) + "</div>") +
+          '<div class="row"><span class="sch-num">' + (i + 1) + '</span><div class="grow">' + (isOther(date) && !e.start ? "" : '<div class="small muted">' + esc(timeRange(e)) + "</div>") +
           '<div class="headline-sm">' + esc(e.title) + "</div></div></div>" +
           (e.place || e.address ? '<div class="small" style="margin-top:6px">📍 ' + esc(e.place || "") + (e.address && e.address !== e.place ? ' <span class="muted">' + esc(e.address) + "</span>" : "") + "</div>" : "") +
           (e.memo ? '<div class="small sch-memo">📝 ' + esc(e.memo) + "</div>" : "") +
@@ -1950,7 +1966,7 @@
         "</div>";
     });
     html += "</div>" +
-      (date === OTHER ? "" : '<p class="small muted">🚶 도보 · 🚗 차 시간은 OpenStreetMap 경로 기준 예상 시간이에요. 버스·트램·지하철은 🚇 버튼을 누르면 구글 지도에서 실시간 노선과 시간을 볼 수 있어요.</p>') +
+      (isOther(date) ? "" : '<p class="small muted">🚶 도보 · 🚗 차 시간은 OpenStreetMap 경로 기준 예상 시간이에요. 버스·트램·지하철은 🚇 버튼을 누르면 구글 지도에서 실시간 노선과 시간을 볼 수 있어요.</p>') +
       '<div class="btn-row"><button class="btn ghost" data-act="reload">🔄 시트에서 다시 불러오기</button></div>' +
       '<p class="small muted">' + new Date(data.fetchedAt).toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" }) + " 시트에서 불러옴</p>";
     view.innerHTML = html;
@@ -1982,7 +1998,7 @@
       if (!SHOW_ROUTE_LINES) drawTripMap(token, points, events, []);
       const legs = [];
       events.forEach((e, i) => {
-        if (i === 0 || date === OTHER) return;
+        if (i === 0 || isOther(date)) return;
         const el = document.getElementById("leg-" + i);
         const a = points[i - 1], b = points[i];
         if (!a || !b) {
@@ -2060,14 +2076,14 @@
       ? "https://www.google.com/maps/dir/" + stops.slice(0, 10).map((x) => x.p.lat + "," + x.p.lon).join("/")
       : "https://www.google.com/maps/search/?api=1&query=" + stops[0].p.lat + "," + stops[0].p.lon;
     const payload = {
-      title: date === OTHER ? "기타 장소" : date ? koDate(date) + " 일정" : "일정 지도",
+      title: isOther(date) ? "기타 장소" + (otherName(date) ? " · " + otherName(date) : "") : date ? koDate(date) + " 일정" : "일정 지도",
       gmaps: gmaps,
       points: pts.map(({ p, i }) => ({ n: i + 1, lat: p.lat, lon: p.lon, title: events[i].title, time: timeRange(events[i]), place: events[i].place || "" })),
       lines: SHOW_ROUTE_LINES ? (legs || []).filter((l) => l && l.line).map((l) => l.line) : []
     };
     box.innerHTML =
       '<button class="btn secondary" data-act="bigmap">🔍 크게 보기 (새 창)</button>' +
-      '<a class="btn ghost" href="' + esc(gmaps) + '" target="_blank" rel="noopener">' + (date === OTHER ? "구글 지도에서 보기" : "구글 지도로 전체 경로") + "</a>";
+      '<a class="btn ghost" href="' + esc(gmaps) + '" target="_blank" rel="noopener">' + (isOther(date) ? "구글 지도에서 보기" : "구글 지도로 전체 경로") + "</a>";
     box.querySelector('[data-act="bigmap"]').onclick = () => {
       try { localStorage.setItem("kkumteul.mapview", JSON.stringify(payload)); } catch (e) { /* 저장 불가 */ }
       const w = window.open("map.html", "_blank");
