@@ -1697,7 +1697,7 @@
     if (!force && cached && cached.link === scheduleSheetUrl() && Date.now() - cached.fetchedAt < 10 * 60000) return Promise.resolve(cached);
     if (!force && Date.now() - scheduleRequested < 30000) return Promise.resolve(cached);
     scheduleRequested = Date.now();
-    return fetchSchedule().then((d) => { updateScheduleCard(); return d; }).catch((e) => {
+    return fetchSchedule().then((d) => { updateScheduleCard(); prefetchGeocodes(d.events); return d; }).catch((e) => {
       const el = document.getElementById("scheduleCard");
       if (el && !(cached && cached.link === scheduleSheetUrl())) el.innerHTML = '<div class="small muted">일정을 불러오지 못했어요. ' + esc(e.message) + "</div>";
       throw e;
@@ -1745,14 +1745,35 @@
     return (e.address || e.place || "").trim();
   }
   let geoChain = Promise.resolve();
+  const geoInflight = {};
+  function isGeoCached(e) {
+    if (e.lat != null && e.lon != null) return true;
+    const q = placeQuery(e);
+    return !q || readJson(GEO_KEY)[q] !== undefined;
+  }
+  // 일정을 불러오면 모든 날의 장소 위치를 미리 찾아 저장해 둬요 (1초에 1개씩, 한 번만).
+  let prefetching = false;
+  function prefetchGeocodes(events) {
+    if (prefetching) return;
+    const todo = [];
+    const seen = new Set();
+    (events || []).forEach((e) => {
+      const q = placeQuery(e);
+      if (!isGeoCached(e) && !seen.has(q)) { seen.add(q); todo.push(e); }
+    });
+    if (!todo.length) return;
+    prefetching = true;
+    todo.reduce((p, e) => p.then(() => geocode(e)), Promise.resolve()).then(() => { prefetching = false; }, () => { prefetching = false; });
+  }
   function geocode(e) {
     if (e.lat != null && e.lon != null) return Promise.resolve({ lat: e.lat, lon: e.lon });
     const q = placeQuery(e);
     if (!q) return Promise.resolve(null);
     const cache = readJson(GEO_KEY);
     if (cache[q] !== undefined) return Promise.resolve(cache[q]);
-    const job = geoChain.then(() => new Promise((r) => setTimeout(r, 1100))).then(() =>
-      fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=en&q=" + encodeURIComponent(q))
+    if (geoInflight[q]) return geoInflight[q];
+    const job = geoInflight[q] = geoChain.then(() => new Promise((r) => setTimeout(r, 1100))).then(() =>
+      fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=en&q=" + encodeURIComponent(q), { signal: AbortSignal.timeout(8000) })
         .then((res) => res.json())
         .then((list) => {
           const hit = list && list[0] ? { lat: +list[0].lat, lon: +list[0].lon } : null;
@@ -1762,6 +1783,7 @@
         .catch(() => null)
     );
     geoChain = job.catch(() => null);
+    job.then(() => { delete geoInflight[q]; }, () => { delete geoInflight[q]; });
     return job;
   }
   function haversineKm(a, b) {
@@ -1772,7 +1794,7 @@
   }
   function osrm(profile, a, b) {
     const url = "https://routing.openstreetmap.de/" + profile + "/route/v1/driving/" + a.lon + "," + a.lat + ";" + b.lon + "," + b.lat + "?overview=full&geometries=geojson";
-    return fetch(url).then((res) => res.json()).then((d) => {
+    return fetch(url, { signal: AbortSignal.timeout(8000) }).then((res) => res.json()).then((d) => {
       if (!d.routes || !d.routes[0]) throw new Error("no route");
       return { sec: d.routes[0].duration, m: d.routes[0].distance, line: d.routes[0].geometry.coordinates };
     });
@@ -1874,9 +1896,27 @@
       refreshSchedule(true).then(() => { toast("일정을 새로 불러왔어요"); renderSchedule(date); }).catch((e) => toast("⚠️ " + e.message));
     };
     const token = ++scheduleToken;
-    // 좌표 찾기 → 이동 시간 → 지도
-    Promise.all(events.map(geocode)).then((points) => {
+    // 좌표 찾기 → 지도(바로) → 이동 시간(따로 채움)
+    loadLeaflet().catch(() => {});
+    const needLookup = events.filter((e) => !isGeoCached(e)).length;
+    let found = 0;
+    const mapBox = document.getElementById("tripMap");
+    if (needLookup && mapBox) mapBox.innerHTML = '<div class="small muted" style="padding:12px">📍 장소 위치 찾는 중 (0/' + needLookup + ")…<br>처음 한 번만 걸리고, 다음부터는 바로 나와요.</div>";
+    Promise.all(events.map((e) => {
+      const cached = isGeoCached(e);
+      return geocode(e).then((pt) => {
+        if (!cached && token === scheduleToken) {
+          found++;
+          const box = document.getElementById("tripMap");
+          if (box && !box.querySelector(".leaflet-container") && !box.classList.contains("drawn")) {
+            box.innerHTML = '<div class="small muted" style="padding:12px">📍 장소 위치 찾는 중 (' + found + "/" + needLookup + ")…<br>처음 한 번만 걸리고, 다음부터는 바로 나와요.</div>";
+          }
+        }
+        return pt;
+      });
+    })).then((points) => {
       if (token !== scheduleToken) return;
+      if (!SHOW_ROUTE_LINES) drawTripMap(token, points, events, []);
       const legs = [];
       events.forEach((e, i) => {
         if (i === 0) return;
@@ -1907,8 +1947,10 @@
           return leg;
         }));
       });
-      return Promise.all(legs).then((legResults) => drawTripMap(token, points, events, legResults));
+      if (SHOW_ROUTE_LINES) return Promise.all(legs).then((legResults) => drawTripMap(token, points, events, legResults));
     });
+    // 오늘 화면의 장소를 먼저 찾고, 그다음 다른 날 장소도 미리 찾아 둬요.
+    prefetchGeocodes(data.events);
   }
   let scheduleToken = 0;
   const SHOW_ROUTE_LINES = false;
@@ -1920,6 +1962,7 @@
     loadLeaflet().then((L) => {
       if (token !== scheduleToken || !document.getElementById("tripMap")) return;
       box.innerHTML = "";
+      box.classList.add("drawn");
       const map = L.map(box, { zoomControl: true, attributionControl: true });
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(map);
       const bounds = [];
