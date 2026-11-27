@@ -1849,6 +1849,7 @@
     let html =
       '<div class="date-chips">' + dates.map((d) => '<button class="chip ' + (d === date ? "on" : "") + '" data-date="' + d + '">' + koDate(d) + "</button>").join("") + "</div>" +
       '<div id="tripMap" class="trip-map"><div class="small muted" style="padding:12px">지도를 불러오는 중이에요…</div></div>' +
+      '<div class="map-actions" id="mapActions"></div>' +
       '<div class="timeline">';
     events.forEach((e, i) => {
       if (i > 0) html += '<div class="leg" id="leg-' + i + '"><div class="small muted">🧭 이동 시간 계산 중…</div></div>';
@@ -1931,9 +1932,39 @@
       });
       if (bounds.length === 1) map.setView(bounds[0], 15);
       else map.fitBounds(bounds, { padding: [30, 30] });
+      addMapActions(pts, events, legs);
     }).catch(() => {
       box.innerHTML = '<div class="small muted" style="padding:12px">지도를 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</div>';
     });
+  }
+
+  // 지도 아래 버튼: 새 창에서 크게 보기 / 구글 지도로 전체 경로
+  function addMapActions(pts, events, legs) {
+    const box = document.getElementById("mapActions");
+    if (!box) return;
+    const date = events[0] && events[0].date;
+    // 구글 지도 여러 곳 경로 (가까운 곳끼리만: 비행 구간이 있으면 마지막 도시 안에서만)
+    let stops = pts.slice();
+    for (let k = stops.length - 1; k > 0; k--) {
+      if (haversineKm(stops[k - 1].p, stops[k].p) > 150) { stops = stops.slice(k); break; }
+    }
+    const gmaps = stops.length > 1
+      ? "https://www.google.com/maps/dir/" + stops.slice(0, 10).map((x) => x.p.lat + "," + x.p.lon).join("/")
+      : "https://www.google.com/maps/search/?api=1&query=" + stops[0].p.lat + "," + stops[0].p.lon;
+    const payload = {
+      title: date ? koDate(date) + " 일정" : "일정 지도",
+      gmaps: gmaps,
+      points: pts.map(({ p, i }) => ({ n: i + 1, lat: p.lat, lon: p.lon, title: events[i].title, time: timeRange(events[i]), place: events[i].place || "" })),
+      lines: (legs || []).filter((l) => l && l.line).map((l) => l.line)
+    };
+    box.innerHTML =
+      '<button class="btn secondary" data-act="bigmap">🔍 크게 보기 (새 창)</button>' +
+      '<a class="btn ghost" href="' + esc(gmaps) + '" target="_blank" rel="noopener">구글 지도로 전체 경로</a>';
+    box.querySelector('[data-act="bigmap"]').onclick = () => {
+      try { localStorage.setItem("kkumteul.mapview", JSON.stringify(payload)); } catch (e) { /* 저장 불가 */ }
+      const w = window.open("map.html", "_blank");
+      if (!w) location.href = "map.html";
+    };
   }
 
   // ---------- 화면: 환율 · 날씨 ----------

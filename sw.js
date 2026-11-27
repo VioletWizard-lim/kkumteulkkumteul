@@ -5,6 +5,7 @@ const CACHE = "kkumteul-__APP_VERSION__";
 const FILES = [
   "./",
   "index.html",
+  "map.html",
   "css/style.css",
   "js/app.js",
   "js/config.js",
