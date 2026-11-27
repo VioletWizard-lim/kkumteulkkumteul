@@ -1695,10 +1695,11 @@
     return m + "월 " + d + "일 (" + ["일", "월", "화", "수", "목", "금", "토"][dd.getDay()] + ")";
   }
   // 날짜 버튼용 짧은 표시: 1/8 (금)
+  // 날짜 버튼용: 위에 큰 글씨(1/8), 아래 작은 글씨(금). 기타는 위 '📌기타', 아래 이름.
   function koDateShort(iso) {
-    if (isOther(iso)) return "📌 기타" + (otherName(iso) ? " " + otherName(iso) : "");
+    if (isOther(iso)) return "<b>📌기타</b><small>" + esc(otherName(iso) || "장소") + "</small>";
     const [y, m, d] = iso.split("-").map(Number);
-    return m + "/" + d + " (" + ["일", "월", "화", "수", "목", "금", "토"][new Date(y, m - 1, d).getDay()] + ")";
+    return "<b>" + m + "/" + d + "</b><small>" + ["일", "월", "화", "수", "목", "금", "토"][new Date(y, m - 1, d).getDay()] + "</small>";
   }
   function timeRange(e) {
     return e.start ? e.start + (e.end ? "~" + e.end : "") : "시간 미정";
@@ -1952,11 +1953,11 @@
     const events = data.events.filter((e) => e.date === date);
 
     let html =
-      // 날짜 버튼을 위·아래 두 줄로 반씩 나눠요.
+      // 날짜 버튼을 위·아래 두 줄로 반씩 나눠 화면 폭에 맞춰요(가로 스크롤 없음).
       (function () {
         const half = Math.ceil(dates.length / 2);
         const chip = (d) => '<button class="chip ' + (d === date ? "on" : "") + '" data-date="' + d + '">' + koDateShort(d) + "</button>";
-        return '<div class="date-chips"><div class="chip-row">' + dates.slice(0, half).map(chip).join("") + '</div><div class="chip-row">' + dates.slice(half).map(chip).join("") + "</div></div>";
+        return '<div class="date-chips" style="grid-template-columns:repeat(' + half + ',minmax(0,1fr))">' + dates.map(chip).join("") + "</div>";
       })() +
       '<div id="tripMap" class="trip-map"><div class="small muted" style="padding:12px">지도를 불러오는 중이에요…</div></div>' +
       '<div class="map-actions" id="mapActions"></div>' +
