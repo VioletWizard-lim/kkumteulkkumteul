@@ -37,5 +37,17 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .
-      - id: deployment
+      # 업로드 직후엔 GitHub가 파일을 아직 못 찾는 경우가 있어 잠깐 기다렸다가 배포하고, 실패하면 한 번 더 시도합니다.
+      - name: Wait for artifact
+        run: sleep 20
+      - id: deploy1
+        continue-on-error: true
         uses: actions/deploy-pages@v4
+      - name: Wait before retry
+        if: steps.deploy1.outcome == 'failure'
+        run: sleep 60
+      - id: deploy2
+        if: steps.deploy1.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+      - id: deployment
+        run: echo "page_url=${{ steps.deploy1.outputs.page_url || steps.deploy2.outputs.page_url }}" >> "$GITHUB_OUTPUT"
