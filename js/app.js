@@ -1536,7 +1536,17 @@
   // 시트 형식(첫 줄 제목): 날짜 | 시작 | 끝 | 일정 | 장소 | 주소 | 메모  (위도·경도 열은 선택)
   // 시트는 "링크가 있는 모든 사용자 - 뷰어"로 공유하고, 그 링크를 ⚙︎ 설정 또는 js/config.js 에 넣어요.
   const SCHEDULE_KEY = "kkumteul.schedule";
-  const GEO_KEY = "kkumteul.geo";
+  // geo2: 주소 정리 기능이 생기면서, 예전에 못 찾은 주소는 다시 찾아보도록 새 저장소를 써요 (찾았던 위치는 옮겨 둠).
+  const GEO_KEY = "kkumteul.geo2";
+  (function migrateGeo() {
+    try {
+      if (localStorage.getItem(GEO_KEY) || !localStorage.getItem("kkumteul.geo")) return;
+      const old = JSON.parse(localStorage.getItem("kkumteul.geo") || "{}");
+      const kept = {};
+      Object.keys(old).forEach((k) => { if (old[k]) kept[k] = old[k]; });
+      localStorage.setItem(GEO_KEY, JSON.stringify(kept));
+    } catch (e) { /* 저장 불가 */ }
+  })();
   const LEG_KEY = "kkumteul.legs";
   function scheduleSheetUrl() {
     return (state.settings.scheduleUrl || (window.APP_CONFIG && window.APP_CONFIG.scheduleSheetUrl) || "").trim();
@@ -1765,6 +1775,47 @@
     prefetching = true;
     todo.reduce((p, e) => p.then(() => geocode(e)), Promise.resolve()).then(() => { prefetching = false; }, () => { prefetching = false; });
   }
+  // 구글 지도보다 덜 유연한 OpenStreetMap 을 위해 주소를 여러 모양으로 정리해서 차례로 찾아봐요.
+  const COUNTRY_EN = { "체코": "Czechia", "체코공화국": "Czechia", "핀란드": "Finland", "한국": "South Korea", "대한민국": "South Korea",
+    "에스토니아": "Estonia", "스웨덴": "Sweden", "노르웨이": "Norway", "덴마크": "Denmark", "독일": "Germany", "오스트리아": "Austria",
+    "헝가리": "Hungary", "폴란드": "Poland", "슬로바키아": "Slovakia", "프랑스": "France", "이탈리아": "Italy", "스페인": "Spain", "영국": "United Kingdom", "네덜란드": "Netherlands" };
+  function geoVariants(e) {
+    const raw = placeQuery(e);
+    const out = [];
+    const add = (q) => {
+      q = (q || "").replace(/\s*,\s*(,\s*)*/g, ", ").replace(/\s{2,}/g, " ").replace(/^[\s,]+|[\s,]+$/g, "");
+      if (q && out.indexOf(q) < 0) out.push(q);
+    };
+    add(raw);
+    // 한글 나라 이름 → 영어
+    let en = raw;
+    Object.keys(COUNTRY_EN).sort((x, y) => y.length - x.length).forEach((k) => { en = en.split(k).join(COUNTRY_EN[k]); });
+    add(en);
+    // 우편번호(123 45 / 12345 / 00100) 빼기, "2/4" 같은 체코식 번호는 앞 번호만
+    const noZip = en.replace(/\b\d{3}\s\d{2}\b/g, "").replace(/\b\d{5}\b/g, "").replace(/(\d+)\s*\/\s*(\d*)/g, "$1");
+    const isPrague = /\b1\d{2}\s?\d{2}\b/.test(en) && /czech|체코/i.test(raw + en);
+    const parts = noZip.split(",").map((x) => x.trim()).filter(Boolean);
+    const street = parts[0] || "";
+    const country = parts.length > 1 ? parts[parts.length - 1] : "";
+    if (isPrague) add(street + ", Praha, Czechia");
+    add(noZip);
+    // 건물 번호 없이 거리 + 지역
+    const streetOnly = street.replace(/\s+\d+[a-zA-Z]?$/, "").replace(/^\d+[a-zA-Z]?\s+/, "");
+    if (parts.length > 1) add([streetOnly].concat(parts.slice(1)).join(", "));
+    if (isPrague) add(streetOnly + ", Praha, Czechia");
+    // 장소 이름 + 나라
+    if (e.place && e.place !== raw) add(e.place + (country ? ", " + country : ""));
+    return out.slice(0, 6);
+  }
+  function nominatim(q) {
+    const job = geoChain.then(() => new Promise((r) => setTimeout(r, 1100))).then(() =>
+      fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=en&q=" + encodeURIComponent(q), { signal: AbortSignal.timeout(8000) })
+        .then((res) => { if (!res.ok) throw new Error("HTTP " + res.status); return res.json(); })
+        .then((list) => (list && list[0] ? { lat: +list[0].lat, lon: +list[0].lon } : null))
+    );
+    geoChain = job.catch(() => null);
+    return job;
+  }
   function geocode(e) {
     if (e.lat != null && e.lon != null) return Promise.resolve({ lat: e.lat, lon: e.lon });
     const q = placeQuery(e);
@@ -1772,17 +1823,17 @@
     const cache = readJson(GEO_KEY);
     if (cache[q] !== undefined) return Promise.resolve(cache[q]);
     if (geoInflight[q]) return geoInflight[q];
-    const job = geoInflight[q] = geoChain.then(() => new Promise((r) => setTimeout(r, 1100))).then(() =>
-      fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=en&q=" + encodeURIComponent(q), { signal: AbortSignal.timeout(8000) })
-        .then((res) => res.json())
-        .then((list) => {
-          const hit = list && list[0] ? { lat: +list[0].lat, lon: +list[0].lon } : null;
-          const c = readJson(GEO_KEY); c[q] = hit; writeJson(GEO_KEY, c);
-          return hit;
-        })
-        .catch(() => null)
-    );
-    geoChain = job.catch(() => null);
+    const variants = geoVariants(e);
+    let failedNetwork = false;
+    const tryAt = (i) => {
+      if (i >= variants.length) return Promise.resolve(null);
+      return nominatim(variants[i]).then((hit) => hit || tryAt(i + 1), () => { failedNetwork = true; return tryAt(i + 1); });
+    };
+    const job = geoInflight[q] = tryAt(0).then((hit) => {
+      // 인터넷 문제로 실패한 경우는 저장하지 않고 다음에 다시 찾아요.
+      if (hit || !failedNetwork) { const c = readJson(GEO_KEY); c[q] = hit; writeJson(GEO_KEY, c); }
+      return hit;
+    });
     job.then(() => { delete geoInflight[q]; }, () => { delete geoInflight[q]; });
     return job;
   }
