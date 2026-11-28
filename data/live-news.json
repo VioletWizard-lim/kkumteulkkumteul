@@ -1,6 +1,26 @@
 {
-  "updated": "2026-11-27T03:23:03.211Z",
+  "updated": "2026-11-28T03:00:04.918Z",
   "items": [
+    {
+      "id": "live-a27af2b1dd",
+      "addedDate": "2026-11-28",
+      "archived": false,
+      "published": "2026-11-27T09:14:46.000Z",
+      "source": "Yle News",
+      "url": "https://yle.fi/a/74-20259351?origin=rss",
+      "title": "City foots €645 bill after daycare kids pelt car with rocks",
+      "titleKo": "보육원 아이들이 자동차에 돌을 던진 후 시는 €645 청구서를 발부했습니다.",
+      "tag": "교육 뉴스",
+      "summaryKo": [
+        "어린이 놀이는 Jyväskylä 시에 큰 비용이 드는 것으로 입증되었습니다."
+      ],
+      "summaryEn": [
+        "Child's play has proved costly for the City of Jyväskylä."
+      ],
+      "body": [],
+      "words": [],
+      "summaryMachine": true
+    },
     {
       "id": "live-02f42f6434",
       "addedDate": "2026-11-27",
@@ -576,26 +596,6 @@
       ],
       "summaryEn": [
         "Finnish schools increasingly report threats to police — YLE News"
-      ],
-      "body": [],
-      "words": [],
-      "summaryMachine": true
-    },
-    {
-      "id": "live-2677035e2e",
-      "addedDate": "2026-10-28",
-      "archived": false,
-      "published": "2026-10-26T17:00:03.000Z",
-      "source": "Helsinki Times",
-      "url": "https://www.helsinkitimes.fi/finland/finland-news/politics/29428-finland-proposes-cuts-to-child-benefits-pensions-and-education-to-reduce-debt.html",
-      "title": "Finland proposes cuts to child benefits, pensions and education to reduce debt",
-      "titleKo": "핀란드, 부채 줄이기 위해 아동 수당, 연금, 교육 삭감 제안",
-      "tag": "교육 뉴스",
-      "summaryKo": [
-        "핀란드, 부채 줄이기 위해 아동 수당, 연금, 교육 삭감 제안"
-      ],
-      "summaryEn": [
-        "Finland proposes cuts to child benefits, pensions and education to reduce debt"
       ],
       "body": [],
       "words": [],
